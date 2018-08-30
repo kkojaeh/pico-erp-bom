@@ -1,0 +1,5 @@
+rootProject.name = 'pico-erp-bom'
+include 'bom-api'
+include 'bom-impl'
+include 'bom-test-cfg'
+

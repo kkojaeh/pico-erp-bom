@@ -1,0 +1,90 @@
+banner:
+  location: classpath:bom/banner.txt
+
+spring:
+  profiles:
+    include:
+      - test-cfg
+  application:
+    name: pico-bom
+  session:
+    store-type: NONE
+  messages:
+    cache-seconds: 60
+    basename: bom-messages
+    encoding: UTF-8
+  datasource:
+    url: ${BOM_DATASOURCE_URL:${DATASOURCE_URL:jdbc:p6spy:hsqldb:mem:bom}}
+    driver-class-name: ${BOM_DATASOURCE_DRIVER_CLASS_NAME:${DATASOURCE_DRIVER_CLASS_NAME:com.p6spy.engine.spy.P6SpyDriver}}
+    username: ${BOM_DATASOURCE_USERNAME:${DATASOURCE_USERNAME:as}}
+    password: ${BOM_DATASOURCE_PASSWORD:${DATASOURCE_PASSWORD:null}}
+    hikari:
+      maximum-pool-size: 4
+  jpa:
+    database: HSQL
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    properties:
+      javax:
+        persistence:
+          sharedCache:
+            mode: ENABLE_SELECTIVE
+      hibernate:
+        memcached:
+          servers: ${HIBERNATE_MEMCACHED_SERVERS}
+          username: ${HIBERNATE_MEMCACHED_USERNAME}
+          password: ${HIBERNATE_MEMCACHED_PASSWORD}
+        generate_statistics: false
+        cache:
+          use_minimal_puts: false
+          use_second_level_cache: ${HIBERNATE_SECOND_LEVEL_CACHE:false}
+          use_query_cache: ${HIBERNATE_QUERY_CACHE:false}
+          region_prefix: ${REGION_PREFIX:}bom
+          default_cache_concurrency_strategy: read-write
+          region:
+            factory_class: com.mc.hibernate.memcached.MemcachedRegionFactory
+  activemq:
+    broker-url: ${ACTIVE_MQ_BROKER_URL:vm://embedded?brokerConfig=xbean:embedded-activemq.xml}
+    user: ${ACTIVE_MQ_USER:}
+    password: ${ACTIVE_MQ_PASSWORD:}
+    in-memory: ${ACTIVE_MQ_IN_MEMORY:true}
+    non-blocking-redelivery: false
+    packages:
+      trust-all: false
+      trusted: pico.erp
+    pool:
+      block-if-full: true
+      block-if-full-timeout: -1
+      create-connection-on-startup: true
+      enabled: false
+      expiry-timeout: 0
+      idle-timeout: 30000
+      max-connections: 1
+      maximum-active-session-per-connection: 100
+      reconnect-on-exception: true
+      time-between-expiration-check: -1
+      use-anonymous-producers: false
+
+  jms:
+    listener:
+      acknowledge-mode: auto
+      auto-startup: true
+      concurrency: 1
+      max-concurrency: 1
+    pub-sub-domain: false
+    template:
+      default-destination:
+      delivery-mode: non_persistent
+      priority: 100
+      qos-enabled: false
+      receive-timeout: 1000
+      time-to-live: 36000
+
+logging:
+  level:
+    org:
+      springframework: INFO
+
+flyway:
+  enabled: false
