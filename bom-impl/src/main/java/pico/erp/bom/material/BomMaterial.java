@@ -1,4 +1,4 @@
-package pico.erp.bom.domain;
+package pico.erp.bom.material;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -13,9 +13,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
+import pico.erp.bom.Bom;
+import pico.erp.bom.Bom.BomCalculateContext;
 import pico.erp.bom.BomExceptions;
-import pico.erp.bom.BomMaterialEvents;
-import pico.erp.bom.domain.Bom.BomCalculateContext;
+import pico.erp.bom.BomUnitCost;
+import pico.erp.bom.material.BomMaterialMessages.CreateRequest;
+import pico.erp.bom.material.BomMaterialMessages.CreateResponse;
+import pico.erp.bom.material.BomMaterialMessages.DeleteRequest;
+import pico.erp.bom.material.BomMaterialMessages.DeleteResponse;
+import pico.erp.bom.material.BomMaterialMessages.NextRevisionRequest;
+import pico.erp.bom.material.BomMaterialMessages.NextRevisionResponse;
+import pico.erp.bom.material.BomMaterialMessages.SwapRequest;
+import pico.erp.bom.material.BomMaterialMessages.SwapResponse;
+import pico.erp.bom.material.BomMaterialMessages.UpdateRequest;
+import pico.erp.bom.material.BomMaterialMessages.UpdateResponse;
 import pico.erp.item.data.ItemSpecData;
 
 @Builder
@@ -38,7 +49,7 @@ public class BomMaterial implements Serializable {
 
   ItemSpecData itemSpecData;
 
-  public BomMaterialMessages.CreateResponse apply(BomMaterialMessages.CreateRequest request) {
+  public CreateResponse apply(CreateRequest request) {
     if (!request.getBom().canModify()) {
       throw new BomExceptions.CannotModifyException();
     }
@@ -46,51 +57,51 @@ public class BomMaterial implements Serializable {
     this.material = request.getMaterial();
     this.quantity = request.getQuantity();
     this.itemSpecData = request.getItemSpecData();
-    return new BomMaterialMessages.CreateResponse(
+    return new CreateResponse(
       Arrays.asList(new BomMaterialEvents.CreatedEvent(bom.getId(), material.getId()))
     );
   }
 
-  public BomMaterialMessages.UpdateResponse apply(BomMaterialMessages.UpdateRequest request) {
+  public UpdateResponse apply(UpdateRequest request) {
     if (!bom.canModify()) {
       throw new BomExceptions.CannotModifyException();
     }
     this.quantity = request.getQuantity();
     this.itemSpecData = request.getItemSpecData();
-    return new BomMaterialMessages.UpdateResponse(
+    return new UpdateResponse(
       Arrays.asList(new BomMaterialEvents.UpdatedEvent(bom.getId(), material.getId()))
     );
   }
 
-  public BomMaterialMessages.DeleteResponse apply(BomMaterialMessages.DeleteRequest request) {
+  public DeleteResponse apply(DeleteRequest request) {
     if (!bom.canModify()) {
       throw new BomExceptions.CannotModifyException();
     }
-    return new BomMaterialMessages.DeleteResponse(
+    return new DeleteResponse(
       Arrays.asList(new BomMaterialEvents.DeletedEvent(bom.getId(), material.getId()))
     );
   }
 
-  public BomMaterialMessages.NextRevisionResponse apply(
-    BomMaterialMessages.NextRevisionRequest request) {
+  public NextRevisionResponse apply(
+    NextRevisionRequest request) {
     val drafted = new BomMaterial();
     drafted.bom = request.getDrafted();
     drafted.material = request.getLastRevisionMaterial();
     drafted.quantity = quantity;
     drafted.itemSpecData = itemSpecData;
-    return new BomMaterialMessages.NextRevisionResponse(
+    return new NextRevisionResponse(
       drafted, Collections.emptyList()
     );
   }
 
-  public BomMaterialMessages.SwapResponse apply(
-    BomMaterialMessages.SwapRequest request) {
+  public SwapResponse apply(
+    SwapRequest request) {
     val swapped = new BomMaterial();
     swapped.bom = bom;
     swapped.material = request.getMaterial();
     swapped.quantity = quantity;
     swapped.itemSpecData = itemSpecData;
-    return new BomMaterialMessages.SwapResponse(
+    return new SwapResponse(
       swapped, Collections.emptyList()
     );
   }

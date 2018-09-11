@@ -1,4 +1,4 @@
-package pico.erp.bom.domain;
+package pico.erp.bom;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -16,6 +16,7 @@ import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.BomExceptions.CannotDetermineException;
 import pico.erp.bom.data.BomId;
 import pico.erp.bom.data.BomStatusKind;
+import pico.erp.bom.material.BomMaterial;
 import pico.erp.item.data.ItemData;
 import pico.erp.process.data.ProcessData;
 import pico.erp.shared.data.Auditor;

@@ -1,4 +1,4 @@
-package pico.erp.bom.core;
+package pico.erp.bom.material;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,11 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pico.erp.bom.BomExceptions;
-import pico.erp.bom.BomMaterialRequests;
-import pico.erp.bom.BomMaterialService;
+import pico.erp.bom.BomMapper;
+import pico.erp.bom.BomRepository;
 import pico.erp.bom.data.BomData;
 import pico.erp.bom.data.BomId;
-import pico.erp.bom.domain.BomMaterial;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.EventPublisher;
 

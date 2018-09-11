@@ -1,4 +1,4 @@
-package pico.erp.bom.core;
+package pico.erp.bom;
 
 import java.util.LinkedList;
 import java.util.stream.Collectors;
@@ -12,12 +12,11 @@ import pico.erp.bom.BomRequests.DeleteRequest;
 import pico.erp.bom.BomRequests.DetermineRequest;
 import pico.erp.bom.BomRequests.DraftRequest;
 import pico.erp.bom.BomRequests.UpdateRequest;
-import pico.erp.bom.BomService;
 import pico.erp.bom.data.BomData;
 import pico.erp.bom.data.BomHierarchyData;
 import pico.erp.bom.data.BomId;
-import pico.erp.bom.domain.Bom;
-import pico.erp.bom.domain.BomMaterialMessages;
+import pico.erp.bom.material.BomMaterialMessages;
+import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.data.ItemId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;

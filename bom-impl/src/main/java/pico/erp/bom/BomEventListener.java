@@ -1,4 +1,4 @@
-package pico.erp.bom.core;
+package pico.erp.bom;
 
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,14 +6,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pico.erp.bom.BomEvents;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
-import pico.erp.bom.BomExceptions;
-import pico.erp.bom.BomMaterialEvents;
 import pico.erp.bom.BomRequests.DraftRequest;
 import pico.erp.bom.data.BomId;
-import pico.erp.bom.domain.Bom;
-import pico.erp.bom.domain.BomMessages;
+import pico.erp.bom.material.BomMaterialEvents;
+import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.ItemEvents;
 import pico.erp.item.ItemSpecEvents;
 import pico.erp.process.ProcessEvents;

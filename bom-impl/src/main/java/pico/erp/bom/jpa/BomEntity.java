@@ -1,4 +1,4 @@
-package pico.erp.bom.impl.jpa;
+package pico.erp.bom.jpa;
 
 
 import java.io.Serializable;

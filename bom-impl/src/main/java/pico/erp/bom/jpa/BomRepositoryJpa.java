@@ -1,4 +1,4 @@
-package pico.erp.bom.impl;
+package pico.erp.bom.jpa;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -9,11 +9,10 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import pico.erp.bom.core.BomRepository;
+import pico.erp.bom.Bom;
+import pico.erp.bom.BomAggregator;
+import pico.erp.bom.BomRepository;
 import pico.erp.bom.data.BomId;
-import pico.erp.bom.domain.Bom;
-import pico.erp.bom.domain.BomAggregator;
-import pico.erp.bom.impl.jpa.BomEntity;
 import pico.erp.item.data.ItemId;
 import pico.erp.process.data.ProcessId;
 

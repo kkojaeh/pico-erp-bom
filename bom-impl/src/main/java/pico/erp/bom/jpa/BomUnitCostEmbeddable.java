@@ -1,4 +1,4 @@
-package pico.erp.bom.impl.jpa;
+package pico.erp.bom.jpa;
 
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import pico.erp.bom.domain.BomUnitCost;
+import pico.erp.bom.BomUnitCost;
 
 @Embeddable
 @Data

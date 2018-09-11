@@ -1,4 +1,4 @@
-package pico.erp.bom.domain;
+package pico.erp.bom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import pico.erp.bom.domain.Bom.BomCalculateContext;
+import pico.erp.bom.Bom.BomCalculateContext;
 import pico.erp.process.data.ProcessCostData;
 
 @Getter

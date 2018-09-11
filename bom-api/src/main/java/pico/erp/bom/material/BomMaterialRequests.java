@@ -1,4 +1,4 @@
-package pico.erp.bom;
+package pico.erp.bom.material;
 
 import java.math.BigDecimal;
 import javax.validation.Valid;

@@ -1,4 +1,4 @@
-package pico.erp.bom;
+package pico.erp.bom.material;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

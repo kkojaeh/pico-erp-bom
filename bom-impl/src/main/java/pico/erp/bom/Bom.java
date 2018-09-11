@@ -1,4 +1,4 @@
-package pico.erp.bom.domain;
+package pico.erp.bom;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -18,14 +18,13 @@ import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import pico.erp.audit.annotation.Audit;
-import pico.erp.bom.BomEvents;
 import pico.erp.bom.BomEvents.NextRevisionCreatedEvent;
 import pico.erp.bom.BomExceptions.AlreadyDraftStatusException;
 import pico.erp.bom.BomExceptions.CannotModifyException;
+import pico.erp.bom.BomMessages.DraftResponse;
+import pico.erp.bom.BomMessages.NextRevisionRequest;
 import pico.erp.bom.data.BomId;
 import pico.erp.bom.data.BomStatusKind;
-import pico.erp.bom.domain.BomMessages.DraftResponse;
-import pico.erp.bom.domain.BomMessages.NextRevisionRequest;
 import pico.erp.item.data.ItemData;
 import pico.erp.item.data.ItemSpecData;
 import pico.erp.item.data.ItemTypeKind;

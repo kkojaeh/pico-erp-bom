@@ -1,4 +1,4 @@
-package pico.erp.bom.domain;
+package pico.erp.bom.material;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Value;
+import pico.erp.bom.Bom;
 import pico.erp.item.data.ItemSpecData;
 import pico.erp.shared.event.Event;
 

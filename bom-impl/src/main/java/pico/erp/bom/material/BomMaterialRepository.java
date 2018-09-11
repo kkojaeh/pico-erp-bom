@@ -1,11 +1,10 @@
-package pico.erp.bom.core;
+package pico.erp.bom.material;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
+import pico.erp.bom.Bom;
 import pico.erp.bom.data.BomId;
-import pico.erp.bom.domain.Bom;
-import pico.erp.bom.domain.BomMaterial;
 import pico.erp.item.data.ItemSpecId;
 
 public interface BomMaterialRepository {

@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 import pico.erp.bom.data.BomData
 import pico.erp.bom.data.BomId
 import pico.erp.bom.data.BomStatusKind
+import pico.erp.bom.material.BomMaterialRequests
+import pico.erp.bom.material.BomMaterialService
 import pico.erp.company.data.CompanyId
 import pico.erp.item.ItemRequests
 import pico.erp.item.ItemService

@@ -1,4 +1,4 @@
-package pico.erp.bom.impl;
+package pico.erp.bom.jpa;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,13 +10,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import pico.erp.bom.core.BomMaterialRepository;
+import pico.erp.bom.Bom;
 import pico.erp.bom.data.BomId;
-import pico.erp.bom.domain.Bom;
-import pico.erp.bom.domain.BomMaterial;
-import pico.erp.bom.impl.jpa.BomEntity;
-import pico.erp.bom.impl.jpa.BomMaterialEntity;
-import pico.erp.bom.impl.jpa.BomMaterialEntity.BomMaterialKey;
+import pico.erp.bom.jpa.BomMaterialEntity.BomMaterialKey;
+import pico.erp.bom.material.BomMaterial;
+import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.data.ItemSpecId;
 
 @Repository

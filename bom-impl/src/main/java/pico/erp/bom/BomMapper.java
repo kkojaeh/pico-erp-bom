@@ -1,4 +1,4 @@
-package pico.erp.bom.core;
+package pico.erp.bom;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -9,20 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.AuditorAware;
 import pico.erp.bom.BomExceptions.NotFoundException;
-import pico.erp.bom.BomMaterialRequests;
-import pico.erp.bom.BomRequests;
+import pico.erp.bom.BomMessages.DeleteRequest;
+import pico.erp.bom.BomMessages.DetermineRequest;
+import pico.erp.bom.BomMessages.DraftRequest;
+import pico.erp.bom.BomMessages.UpdateRequest;
 import pico.erp.bom.BomRequests.MaterialRequestData;
 import pico.erp.bom.data.BomData;
 import pico.erp.bom.data.BomId;
 import pico.erp.bom.data.BomUnitCostData;
-import pico.erp.bom.domain.Bom;
-import pico.erp.bom.domain.BomMaterial;
-import pico.erp.bom.domain.BomMaterialMessages;
-import pico.erp.bom.domain.BomMessages.DeleteRequest;
-import pico.erp.bom.domain.BomMessages.DetermineRequest;
-import pico.erp.bom.domain.BomMessages.DraftRequest;
-import pico.erp.bom.domain.BomMessages.UpdateRequest;
-import pico.erp.bom.domain.BomUnitCost;
+import pico.erp.bom.material.BomMaterial;
+import pico.erp.bom.material.BomMaterialMessages;
+import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.item.ItemService;
 import pico.erp.item.ItemSpecService;
 import pico.erp.item.data.ItemData;
@@ -85,18 +82,18 @@ public abstract class BomMapper {
   @Mappings({
     @Mapping(target = "determinedBy", expression = "java(auditorAware.getCurrentAuditor())")
   })
-  abstract DetermineRequest map(BomRequests.DetermineRequest request);
+  public abstract DetermineRequest map(BomRequests.DetermineRequest request);
 
-  abstract DeleteRequest map(BomRequests.DeleteRequest request);
+  public abstract DeleteRequest map(BomRequests.DeleteRequest request);
 
   @Mappings({
     @Mapping(target = "itemData", source = "itemId"),
     @Mapping(target = "lastRevision", source = "itemId"),
     @Mapping(target = "draftedBy", expression = "java(auditorAware.getCurrentAuditor())")
   })
-  abstract DraftRequest map(BomRequests.DraftRequest request);
+  public abstract DraftRequest map(BomRequests.DraftRequest request);
 
-  BomMaterial map(MaterialRequestData data) {
+  public BomMaterial map(MaterialRequestData data) {
     return BomMaterial.builder()
       .material(map(data.getId()))
       .itemSpecData(map(data.getItemSpecId()))
@@ -110,23 +107,23 @@ public abstract class BomMapper {
     @Mapping(target = "material", source = "materialId"),
     @Mapping(target = "itemSpecData", source = "itemSpecId")
   })
-  abstract BomMaterialMessages.CreateRequest map(BomMaterialRequests.CreateRequest request);
+  public abstract BomMaterialMessages.CreateRequest map(BomMaterialRequests.CreateRequest request);
 
   @Mappings({
     @Mapping(target = "itemSpecData", source = "itemSpecId")
   })
-  abstract BomMaterialMessages.UpdateRequest map(BomMaterialRequests.UpdateRequest request);
+  public abstract BomMaterialMessages.UpdateRequest map(BomMaterialRequests.UpdateRequest request);
 
   @Mappings({
   })
-  abstract BomMaterialMessages.DeleteRequest map(BomMaterialRequests.DeleteRequest request);
+  public abstract BomMaterialMessages.DeleteRequest map(BomMaterialRequests.DeleteRequest request);
 
   @Mappings({
     @Mapping(target = "processData", source = "processId")
   })
-  abstract UpdateRequest map(BomRequests.UpdateRequest request);
+  public abstract UpdateRequest map(BomRequests.UpdateRequest request);
 
-  abstract BomUnitCostData map(BomUnitCost domain);
+  public abstract BomUnitCostData map(BomUnitCost domain);
 
   @Mappings({
     @Mapping(target = "itemId", source = "itemData.id"),
@@ -136,7 +133,7 @@ public abstract class BomMapper {
     @Mapping(target = "itemSpecId", ignore = true),
     @Mapping(target = "parent", ignore = true),
   })
-  abstract BomData map(Bom bom);
+  public abstract BomData map(Bom bom);
 
   @Mappings({
     @Mapping(target = "id", source = "material.id"),
@@ -157,6 +154,6 @@ public abstract class BomMapper {
     @Mapping(target = "parent", source = "bom"),
 
   })
-  abstract BomData map(BomMaterial material);
+  public abstract BomData map(BomMaterial material);
 
 }

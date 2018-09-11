@@ -1,4 +1,4 @@
-package pico.erp.bom.domain;
+package pico.erp.bom;
 
 import java.util.Collection;
 import javax.validation.Valid;

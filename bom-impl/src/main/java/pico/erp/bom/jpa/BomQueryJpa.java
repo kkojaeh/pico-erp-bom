@@ -1,4 +1,4 @@
-package pico.erp.bom.impl;
+package pico.erp.bom.jpa;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pico.erp.bom.BomQuery;
 import pico.erp.bom.data.BomRevisionView;
-import pico.erp.bom.impl.jpa.QBomEntity;
-import pico.erp.bom.impl.jpa.QBomMaterialEntity;
 import pico.erp.item.data.ItemId;
 import pico.erp.shared.Public;
 import pico.erp.shared.jpa.QueryDslJpaSupport;
