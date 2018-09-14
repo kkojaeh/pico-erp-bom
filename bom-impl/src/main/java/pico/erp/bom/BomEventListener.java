@@ -12,7 +12,7 @@ import pico.erp.bom.data.BomId;
 import pico.erp.bom.material.BomMaterialEvents;
 import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.ItemEvents;
-import pico.erp.item.ItemSpecEvents;
+import pico.erp.item.spec.ItemSpecEvents;
 import pico.erp.process.ProcessEvents;
 import pico.erp.shared.event.EventPublisher;
 
