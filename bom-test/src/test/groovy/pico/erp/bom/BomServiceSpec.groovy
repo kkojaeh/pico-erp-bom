@@ -23,6 +23,7 @@ import pico.erp.process.ProcessRequests
 import pico.erp.process.ProcessService
 import pico.erp.process.data.ProcessDifficultyKind
 import pico.erp.process.data.ProcessId
+import pico.erp.process.type.data.ProcessTypeId
 import pico.erp.shared.IntegrationConfiguration
 import pico.erp.shared.data.UnitKind
 import spock.lang.Specification
