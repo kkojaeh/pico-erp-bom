@@ -1,5 +1,5 @@
 buildscript {
-  apply from: 'https://rawgit.com/kkojaeh/pico-erp-gradle/master/buildscript.gradle'
+  apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/master/buildscript.gradle'
 }
 
 ext {
@@ -14,7 +14,7 @@ ext {
 apply plugin: 'java'
 apply plugin: 'net.researchgate.release'
 
-apply from: 'https://rawgit.com/kkojaeh/pico-erp-gradle/master/parent.gradle'
+apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/master/parent.gradle'
 
 release {
   failOnCommitNeeded = false
