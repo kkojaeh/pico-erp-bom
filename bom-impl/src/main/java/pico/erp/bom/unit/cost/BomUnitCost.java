@@ -1,4 +1,4 @@
-package pico.erp.bom;
+package pico.erp.bom.unit.cost;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,8 +9,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import pico.erp.bom.Bom;
 import pico.erp.bom.Bom.BomCalculateContext;
-import pico.erp.process.data.ProcessCostData;
+import pico.erp.process.cost.ProcessCostData;
 
 @Getter
 @ToString
@@ -63,9 +64,9 @@ public class BomUnitCost implements Serializable {
 
   public BomUnitCost(Bom bom) {
     ProcessCostData cost =
-      bom.getProcessData() != null ? bom.getProcessData().getEstimatedCost() : ProcessCostData.ZERO;
+      bom.getProcess() != null ? bom.getProcess().getEstimatedCost() : ProcessCostData.ZERO;
     directMaterial =
-      bom.getItemData() != null ? bom.getItemData().getBaseUnitCost() : BigDecimal.ZERO;
+      bom.getItem() != null ? bom.getItem().getBaseUnitCost() : BigDecimal.ZERO;
     indirectMaterial = cost.getIndirectMaterial();
     directLabor = cost.getDirectLabor();
     indirectLabor = cost.getIndirectLabor();

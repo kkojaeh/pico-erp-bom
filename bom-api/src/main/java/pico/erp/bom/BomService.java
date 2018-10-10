@@ -6,10 +6,7 @@ import pico.erp.bom.BomRequests.DeleteRequest;
 import pico.erp.bom.BomRequests.DetermineRequest;
 import pico.erp.bom.BomRequests.DraftRequest;
 import pico.erp.bom.BomRequests.UpdateRequest;
-import pico.erp.bom.data.BomData;
-import pico.erp.bom.data.BomHierarchyData;
-import pico.erp.bom.data.BomId;
-import pico.erp.item.data.ItemId;
+import pico.erp.item.ItemId;
 
 public interface BomService {
 

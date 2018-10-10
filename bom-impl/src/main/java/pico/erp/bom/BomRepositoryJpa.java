@@ -1,4 +1,4 @@
-package pico.erp.bom.jpa;
+package pico.erp.bom;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -9,12 +9,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import pico.erp.bom.Bom;
-import pico.erp.bom.BomAggregator;
-import pico.erp.bom.BomRepository;
-import pico.erp.bom.data.BomId;
-import pico.erp.item.data.ItemId;
-import pico.erp.process.data.ProcessId;
+import pico.erp.item.ItemId;
+import pico.erp.process.ProcessId;
 
 @Repository
 interface BomEntityRepository extends CrudRepository<BomEntity, BomId> {
@@ -44,13 +40,13 @@ public class BomRepositoryJpa implements BomRepository {
   private BomEntityRepository repository;
 
   @Autowired
-  private BomJpaMapper mapper;
+  private BomMapper mapper;
 
   @Override
   public Bom create(Bom bom) {
-    val entity = mapper.map(bom);
+    val entity = mapper.entity(bom);
     val created = repository.save(entity);
-    return mapper.map(created);
+    return mapper.domain(created);
   }
 
   @Override
@@ -69,34 +65,34 @@ public class BomRepositoryJpa implements BomRepository {
   }
 
   @Override
-  public Stream<Bom> findAllBy(ItemId itemId) {
-    return repository.findAllBy(itemId)
-      .map(mapper::map);
+  public Optional<BomAggregator> findAggregatorBy(BomId id) {
+    return Optional.ofNullable(repository.findOne(id))
+      .map(mapper::aggregator);
   }
 
   @Override
   public Stream<Bom> findAllBy(ProcessId id) {
     return repository.findAllBy(id)
-      .map(mapper::map);
+      .map(mapper::domain);
   }
 
   @Override
-  public Optional<BomAggregator> findAggregatorBy(BomId id) {
-    return Optional.ofNullable(repository.findOne(id))
-      .map(mapper::mapAggregator);
+  public Stream<Bom> findAllBy(ItemId itemId) {
+    return repository.findAllBy(itemId)
+      .map(mapper::domain);
   }
 
   @Override
   public Optional<Bom> findBy(BomId id) {
     return Optional.ofNullable(repository.findOne(id))
-      .map(mapper::map);
+      .map(mapper::domain);
   }
 
   @Override
   public Optional<Bom> findBy(ItemId id, int revision) {
     return Optional.ofNullable(
       repository.findBy(id, revision)
-    ).map(mapper::map);
+    ).map(mapper::domain);
   }
 
   @Override
@@ -107,13 +103,13 @@ public class BomRepositoryJpa implements BomRepository {
     }
     return Optional.ofNullable(
       repository.findBy(itemId, lastRevision)
-    ).map(mapper::map);
+    ).map(mapper::domain);
   }
 
   @Override
   public void update(Bom bom) {
     val entity = repository.findOne(bom.getId());
-    mapper.pass(mapper.map(bom), entity);
+    mapper.pass(mapper.entity(bom), entity);
     repository.save(entity);
   }
 

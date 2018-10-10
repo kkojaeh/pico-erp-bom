@@ -2,33 +2,21 @@ package pico.erp.bom;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.AuditorAware;
-import pico.erp.bom.BomExceptions.NotFoundException;
-import pico.erp.bom.BomMessages.DeleteRequest;
-import pico.erp.bom.BomMessages.DetermineRequest;
-import pico.erp.bom.BomMessages.DraftRequest;
-import pico.erp.bom.BomMessages.UpdateRequest;
-import pico.erp.bom.BomRequests.MaterialRequestData;
-import pico.erp.bom.data.BomData;
-import pico.erp.bom.data.BomId;
-import pico.erp.bom.data.BomUnitCostData;
-import pico.erp.bom.material.BomMaterial;
-import pico.erp.bom.material.BomMaterialMessages;
-import pico.erp.bom.material.BomMaterialRequests;
+import pico.erp.bom.material.BomMaterialRepository;
+import pico.erp.item.ItemData;
+import pico.erp.item.ItemId;
 import pico.erp.item.ItemService;
-import pico.erp.item.data.ItemData;
-import pico.erp.item.data.ItemId;
-import pico.erp.item.data.ItemSpecData;
-import pico.erp.item.data.ItemSpecId;
-import pico.erp.item.spec.ItemSpecService;
+import pico.erp.process.ProcessData;
+import pico.erp.process.ProcessId;
 import pico.erp.process.ProcessService;
-import pico.erp.process.data.ProcessData;
-import pico.erp.process.data.ProcessId;
 import pico.erp.shared.data.Auditor;
 
 @Mapper(imports = BigDecimal.class)
@@ -40,9 +28,6 @@ public abstract class BomMapper {
 
   @Lazy
   @Autowired
-  protected ItemSpecService itemSpecService;
-
-  @Autowired
   protected BomRepository bomRepository;
 
   @Lazy
@@ -51,6 +36,10 @@ public abstract class BomMapper {
 
   @Autowired
   protected AuditorAware<Auditor> auditorAware;
+
+  @Lazy
+  @Autowired
+  protected BomMaterialRepository bomMaterialRepository;
 
   protected Bom lastRevision(ItemId itemId) {
     return bomRepository.findWithLastRevision(itemId)
@@ -63,14 +52,28 @@ public abstract class BomMapper {
       .orElse(null);
   }
 
-  protected ItemSpecData map(ItemSpecId id) {
-    return Optional.ofNullable(id)
-      .map(itemSpecService::get)
-      .orElse(null);
-  }
-
-  protected Bom map(BomId bomId) {
-    return bomRepository.findBy(bomId).orElseThrow(NotFoundException::new);
+  public BomAggregator aggregator(BomEntity entity) {
+    return BomAggregator.aggregatorBuilder()
+      .id(entity.getId())
+      .item(itemService.get(entity.getItemId()))
+      .revision(entity.getRevision())
+      .status(entity.getStatus())
+      .process(
+        Optional.ofNullable(entity.getProcessId())
+          .map(id -> processService.get(id))
+          .orElse(null)
+      )
+      .estimatedIsolatedUnitCost(entity.getEstimatedIsolatedUnitCost().to())
+      .estimatedAccumulatedUnitCost(entity.getEstimatedAccumulatedUnitCost().to())
+      .draftedBy(entity.getDraftedBy())
+      .draftedDate(entity.getDraftedDate())
+      .determinedBy(entity.getDeterminedBy())
+      .determinedDate(entity.getDeterminedDate())
+      .stable(entity.isStable())
+      .materials(
+        bomMaterialRepository.findAllBy(entity.getId()).collect(Collectors.toList())
+      )
+      .build();
   }
 
   protected ProcessData map(ProcessId id) {
@@ -79,55 +82,65 @@ public abstract class BomMapper {
       .orElse(null);
   }
 
+  public Bom domain(BomEntity entity) {
+    Bom bom = Bom.builder()
+      .id(entity.getId())
+      .item(itemService.get(entity.getItemId()))
+      .revision(entity.getRevision())
+      .status(entity.getStatus())
+      .process(
+        Optional.ofNullable(entity.getProcessId())
+          .map(id -> processService.get(id))
+          .orElse(null)
+      )
+      .estimatedIsolatedUnitCost(entity.getEstimatedIsolatedUnitCost().to())
+      .estimatedAccumulatedUnitCost(entity.getEstimatedAccumulatedUnitCost().to())
+      .draftedBy(entity.getDraftedBy())
+      .draftedDate(entity.getDraftedDate())
+      .determinedBy(entity.getDeterminedBy())
+      .determinedDate(entity.getDeterminedDate())
+      .stable(entity.isStable())
+      .build();
+    return bom;
+  }
+
+  @Mappings({
+    @Mapping(target = "itemId", source = "item.id"),
+    @Mapping(target = "processId", source = "process.id"),
+    @Mapping(target = "processName", source = "process.name"),
+    @Mapping(target = "lastModifiedBy", ignore = true),
+    @Mapping(target = "lastModifiedDate", ignore = true)
+  })
+  public abstract BomEntity entity(Bom bom);
+
+  public Bom map(BomId bomId) {
+    return Optional.ofNullable(bomId)
+      .map(id -> bomRepository.findBy(id).orElseThrow(BomExceptions.NotFoundException::new))
+      .orElse(null);
+  }
+
   @Mappings({
     @Mapping(target = "determinedBy", expression = "java(auditorAware.getCurrentAuditor())")
   })
-  public abstract DetermineRequest map(BomRequests.DetermineRequest request);
+  public abstract BomMessages.DetermineRequest map(BomRequests.DetermineRequest request);
 
-  public abstract DeleteRequest map(BomRequests.DeleteRequest request);
+  public abstract BomMessages.DeleteRequest map(BomRequests.DeleteRequest request);
 
   @Mappings({
-    @Mapping(target = "itemData", source = "itemId"),
+    @Mapping(target = "item", source = "itemId"),
     @Mapping(target = "lastRevision", source = "itemId"),
     @Mapping(target = "draftedBy", expression = "java(auditorAware.getCurrentAuditor())")
   })
-  public abstract DraftRequest map(BomRequests.DraftRequest request);
-
-  public BomMaterial map(MaterialRequestData data) {
-    return BomMaterial.builder()
-      .material(map(data.getId()))
-      .itemSpecData(map(data.getItemSpecId()))
-      .quantity(data.getQuantity())
-      .build();
-  }
-
+  public abstract BomMessages.DraftRequest map(BomRequests.DraftRequest request);
 
   @Mappings({
-    @Mapping(target = "bom", source = "bomId"),
-    @Mapping(target = "material", source = "materialId"),
-    @Mapping(target = "itemSpecData", source = "itemSpecId")
+    @Mapping(target = "process", source = "processId")
   })
-  public abstract BomMaterialMessages.CreateRequest map(BomMaterialRequests.CreateRequest request);
+  public abstract BomMessages.UpdateRequest map(BomRequests.UpdateRequest request);
 
   @Mappings({
-    @Mapping(target = "itemSpecData", source = "itemSpecId")
-  })
-  public abstract BomMaterialMessages.UpdateRequest map(BomMaterialRequests.UpdateRequest request);
-
-  @Mappings({
-  })
-  public abstract BomMaterialMessages.DeleteRequest map(BomMaterialRequests.DeleteRequest request);
-
-  @Mappings({
-    @Mapping(target = "processData", source = "processId")
-  })
-  public abstract UpdateRequest map(BomRequests.UpdateRequest request);
-
-  public abstract BomUnitCostData map(BomUnitCost domain);
-
-  @Mappings({
-    @Mapping(target = "itemId", source = "itemData.id"),
-    @Mapping(target = "processId", source = "processData.id"),
+    @Mapping(target = "itemId", source = "item.id"),
+    @Mapping(target = "processId", source = "process.id"),
     @Mapping(target = "quantity", expression = "java(BigDecimal.ONE)"),
     @Mapping(target = "modifiable", expression = "java(bom.canModify())"),
     @Mapping(target = "itemSpecId", ignore = true),
@@ -135,25 +148,7 @@ public abstract class BomMapper {
   })
   public abstract BomData map(Bom bom);
 
-  @Mappings({
-    @Mapping(target = "id", source = "material.id"),
-    @Mapping(target = "itemId", source = "material.itemData.id"),
-    @Mapping(target = "revision", source = "material.revision"),
-    @Mapping(target = "status", source = "material.status"),
-    @Mapping(target = "processId", source = "material.processData.id"),
-    @Mapping(target = "estimatedIsolatedUnitCost", source = "material.estimatedIsolatedUnitCost"),
-    @Mapping(target = "estimatedAccumulatedUnitCost", source = "material.estimatedAccumulatedUnitCost"),
-    @Mapping(target = "determinedBy", source = "material.determinedBy"),
-    @Mapping(target = "determinedDate", source = "material.determinedDate"),
-    @Mapping(target = "quantity", source = "quantity"),
-    @Mapping(target = "specifiable", source = "material.specifiable"),
-    @Mapping(target = "material", source = "material.material"),
-    @Mapping(target = "modifiable", expression = "java(material.getMaterial().canModify())"),
-    @Mapping(target = "stable", expression = "java(material.getMaterial().isStable())"),
-    @Mapping(target = "itemSpecId", source = "itemSpecData.id"),
-    @Mapping(target = "parent", source = "bom"),
+  public abstract void pass(BomEntity from, @MappingTarget BomEntity to);
 
-  })
-  public abstract BomData map(BomMaterial material);
 
 }

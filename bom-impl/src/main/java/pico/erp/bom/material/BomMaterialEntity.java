@@ -1,4 +1,4 @@
-package pico.erp.bom.jpa;
+package pico.erp.bom.material;
 
 
 import java.io.Serializable;
@@ -29,10 +29,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pico.erp.bom.data.BomId;
-import pico.erp.bom.jpa.BomMaterialEntity.BomMaterialKey;
-import pico.erp.bom.material.BomMaterial;
-import pico.erp.item.data.ItemSpecId;
+import pico.erp.bom.BomEntity;
+import pico.erp.bom.BomId;
+import pico.erp.bom.material.BomMaterialEntity.BomMaterialKey;
+import pico.erp.bom.unit.cost.BomUnitCostEmbeddable;
+import pico.erp.item.spec.ItemSpecId;
 import pico.erp.shared.TypeDefinitions;
 import pico.erp.shared.data.Auditor;
 

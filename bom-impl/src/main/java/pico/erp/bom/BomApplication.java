@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
-import pico.erp.audit.data.AuditConfiguration;
+import pico.erp.audit.AuditConfiguration;
 import pico.erp.shared.ApplicationStarter;
 import pico.erp.shared.Public;
 import pico.erp.shared.SpringBootConfigs;
@@ -44,14 +44,17 @@ public class BomApplication implements ApplicationStarter {
 
   @Bean
   @Public
-  public Role bomAccessorRole() {
-    return ROLE.BOM_ACCESSOR;
+  public AuditConfiguration auditConfiguration() {
+    return AuditConfiguration.builder()
+      .packageToScan("pico.erp.bom")
+      .entity(BomRoles.class)
+      .build();
   }
 
   @Bean
   @Public
-  public Role bomManagerRole() {
-    return ROLE.BOM_MANAGER;
+  public Role bomAccessorRole() {
+    return BomRoles.BOM_ACCESSOR;
   }
 
   @Override
@@ -61,11 +64,8 @@ public class BomApplication implements ApplicationStarter {
 
   @Bean
   @Public
-  public AuditConfiguration auditConfiguration() {
-    return AuditConfiguration.builder()
-      .packageToScan("pico.erp.bom")
-      .entity(ROLE.class)
-      .build();
+  public Role bomManagerRole() {
+    return BomRoles.BOM_MANAGER;
   }
 
   @Override

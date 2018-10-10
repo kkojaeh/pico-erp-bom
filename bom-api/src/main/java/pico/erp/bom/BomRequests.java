@@ -1,17 +1,13 @@
 package pico.erp.bom;
 
-import java.math.BigDecimal;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pico.erp.bom.data.BomId;
-import pico.erp.item.data.ItemId;
-import pico.erp.item.data.ItemSpecId;
-import pico.erp.process.data.ProcessId;
+import pico.erp.item.ItemId;
+import pico.erp.process.ProcessId;
 
 public interface BomRequests {
 
@@ -49,25 +45,6 @@ public interface BomRequests {
     @Valid
     @NotNull
     ItemId itemId;
-
-  }
-
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  class MaterialRequestData {
-
-    @Valid
-    @NotNull
-    BomId id;
-
-    @NotNull
-    @Min(0)
-    BigDecimal quantity;
-
-    @Valid
-    ItemSpecId itemSpecId;
 
   }
 

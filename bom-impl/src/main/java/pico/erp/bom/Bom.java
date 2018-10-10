@@ -23,12 +23,11 @@ import pico.erp.bom.BomExceptions.AlreadyDraftStatusException;
 import pico.erp.bom.BomExceptions.CannotModifyException;
 import pico.erp.bom.BomMessages.DraftResponse;
 import pico.erp.bom.BomMessages.NextRevisionRequest;
-import pico.erp.bom.data.BomId;
-import pico.erp.bom.data.BomStatusKind;
-import pico.erp.item.data.ItemData;
-import pico.erp.item.data.ItemSpecData;
-import pico.erp.item.data.ItemTypeKind;
-import pico.erp.process.data.ProcessData;
+import pico.erp.bom.unit.cost.BomUnitCost;
+import pico.erp.item.ItemData;
+import pico.erp.item.ItemTypeKind;
+import pico.erp.item.spec.ItemSpecData;
+import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -54,7 +53,7 @@ public class Bom implements Serializable {
   /**
    * 관계 품목
    */
-  ItemData itemData;
+  ItemData item;
 
   /**
    * bom 상태
@@ -65,7 +64,7 @@ public class Bom implements Serializable {
   /**
    * 공정 정보
    */
-  ProcessData processData;
+  ProcessData process;
 
 
   BomUnitCost estimatedIsolatedUnitCost;
@@ -110,7 +109,7 @@ public class Bom implements Serializable {
   public BomMessages.DraftResponse apply(BomMessages.DraftRequest request) {
     Bom lastRevision = request.getLastRevision();
     this.id = request.getId();
-    this.itemData = request.getItemData();
+    this.item = request.getItem();
     if (lastRevision != null) {
       List<Event> events = new LinkedList<>();
       val nextRevisionResponse = lastRevision
@@ -130,7 +129,7 @@ public class Bom implements Serializable {
     if (!canModify()) {
       throw new CannotModifyException();
     }
-    processData = request.getProcessData();
+    process = request.getProcess();
     //val recalculateResponse = apply(new CalculateEstimatedUnitCostRequest());
     return new BomMessages.UpdateResponse(
       Arrays.asList(new BomEvents.UpdatedEvent(this.id))
@@ -151,9 +150,9 @@ public class Bom implements Serializable {
     }
     Bom drafted = request.getDrafted();
     drafted.revision = this.revision + 1;
-    drafted.itemData = itemData;
+    drafted.item = item;
     drafted.status = BomStatusKind.DRAFT;
-    drafted.processData = processData;
+    drafted.process = process;
     drafted.estimatedIsolatedUnitCost = estimatedIsolatedUnitCost;
     drafted.estimatedAccumulatedUnitCost = estimatedAccumulatedUnitCost;
     drafted.draftedBy = request.getDraftedBy();
@@ -170,8 +169,8 @@ public class Bom implements Serializable {
   }
 
   public boolean isMaterial() {
-    if (itemData != null) {
-      return !Optional.ofNullable(itemData.getType())
+    if (item != null) {
+      return !Optional.ofNullable(item.getType())
         .orElse(ItemTypeKind.MATERIAL)
         .isProcessNeeded();
     }
@@ -179,8 +178,8 @@ public class Bom implements Serializable {
   }
 
   public boolean isSpecifiable() {
-    if (itemData != null) {
-      return itemData.isSpecifiable();
+    if (item != null) {
+      return item.isSpecifiable();
     }
     return false;
   }

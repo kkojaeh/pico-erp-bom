@@ -1,4 +1,4 @@
-package pico.erp.bom.jpa;
+package pico.erp.bom.material;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,11 +11,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import pico.erp.bom.Bom;
-import pico.erp.bom.data.BomId;
-import pico.erp.bom.jpa.BomMaterialEntity.BomMaterialKey;
-import pico.erp.bom.material.BomMaterial;
-import pico.erp.bom.material.BomMaterialRepository;
-import pico.erp.item.data.ItemSpecId;
+import pico.erp.bom.BomEntity;
+import pico.erp.bom.BomId;
+import pico.erp.bom.BomMapper;
+import pico.erp.bom.material.BomMaterialEntity.BomMaterialKey;
+import pico.erp.item.spec.ItemSpecId;
 
 @Repository
 interface BomMaterialEntityRepository extends CrudRepository<BomMaterialEntity, BomMaterialKey> {
@@ -44,13 +44,16 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   private BomMaterialEntityRepository repository;
 
   @Autowired
-  private BomJpaMapper mapper;
+  private BomMaterialMapper mapper;
+
+  @Autowired
+  private BomMapper bomMapper;
 
   @Override
   public BomMaterial create(BomMaterial material) {
-    val entity = mapper.map(material);
+    val entity = mapper.entity(material);
     val created = repository.save(entity);
-    return mapper.map(created);
+    return mapper.domain(created);
   }
 
   @Override
@@ -76,7 +79,7 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   @Override
   public Stream<Bom> findAllAscendBy(BomId materialId) {
     val references = repository.findAllBomBy(materialId)
-      .map(mapper::map)
+      .map(bomMapper::domain)
       .collect(Collectors.toList());
     references.addAll(
       references.stream().flatMap(bom -> this.findAllReferencedBy(bom.getId()))
@@ -88,31 +91,31 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   @Override
   public Stream<BomMaterial> findAllBy(BomId id) {
     return repository.findAllMaterialBy(id)
-      .map(mapper::map);
+      .map(mapper::domain);
   }
 
   @Override
   public Stream<Bom> findAllReferencedBy(BomId materialId) {
     return repository.findAllBomBy(materialId)
-      .map(mapper::map);
+      .map(bomMapper::domain);
   }
 
   @Override
   public Optional<BomMaterial> findBy(BomId bomId, BomId materialId) {
     return Optional.ofNullable(repository.findOne(BomMaterialKey.from(bomId, materialId)))
-      .map(mapper::map);
+      .map(mapper::domain);
   }
 
   @Override
   public Optional<BomMaterial> findBy(ItemSpecId itemSpecId) {
     return Optional.ofNullable(repository.findBy(itemSpecId))
-      .map(mapper::map);
+      .map(mapper::domain);
   }
 
   @Override
   public void update(BomMaterial material) {
     val entity = repository.findOne(BomMaterialKey.from(material));
-    mapper.pass(mapper.map(material), entity);
+    mapper.pass(mapper.entity(material), entity);
     repository.save(entity);
   }
 }

@@ -3,7 +3,7 @@ package pico.erp.bom.material;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pico.erp.bom.data.BomId;
+import pico.erp.bom.BomId;
 import pico.erp.shared.event.Event;
 
 public interface BomMaterialEvents {

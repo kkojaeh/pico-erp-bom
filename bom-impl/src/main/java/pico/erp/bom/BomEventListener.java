@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.BomRequests.DraftRequest;
-import pico.erp.bom.data.BomId;
 import pico.erp.bom.material.BomMaterialEvents;
 import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.ItemEvents;
@@ -81,7 +80,7 @@ public class BomEventListener {
           if (bom.canModify()) {
             val response = bom.apply(
               BomMessages.UpdateRequest.builder()
-                .processData(null)
+                .process(null)
                 .build()
             );
             bomRepository.update(bom);
@@ -90,7 +89,7 @@ public class BomEventListener {
             val nextRevision = new Bom();
             val response = nextRevision.apply(
               bomMapper.map(
-                new DraftRequest(BomId.generate(), bom.getItemData().getId())
+                new DraftRequest(BomId.generate(), bom.getItem().getId())
               )
             );
             bomRepository.create(nextRevision);

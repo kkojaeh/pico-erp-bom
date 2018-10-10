@@ -1,11 +1,11 @@
-package pico.erp.bom.data;
+package pico.erp.bom;
 
 import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pico.erp.process.data.ProcessId;
+import pico.erp.process.ProcessId;
 import pico.erp.shared.data.Auditor;
 
 @AllArgsConstructor

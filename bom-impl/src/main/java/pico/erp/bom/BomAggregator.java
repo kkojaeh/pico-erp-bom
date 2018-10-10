@@ -14,11 +14,10 @@ import lombok.val;
 import pico.erp.bom.BomEvents.DeterminedEvent;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.BomExceptions.CannotDetermineException;
-import pico.erp.bom.data.BomId;
-import pico.erp.bom.data.BomStatusKind;
 import pico.erp.bom.material.BomMaterial;
-import pico.erp.item.data.ItemData;
-import pico.erp.process.data.ProcessData;
+import pico.erp.bom.unit.cost.BomUnitCost;
+import pico.erp.item.ItemData;
+import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -30,13 +29,13 @@ public class BomAggregator extends Bom {
   List<BomMaterial> materials;
 
   @Builder(builderMethodName = "aggregatorBuilder")
-  public BomAggregator(BomId id, int revision, ItemData itemData,
-    BomStatusKind status, ProcessData processData,
+  public BomAggregator(BomId id, int revision, ItemData item,
+    BomStatusKind status, ProcessData process,
     BomUnitCost estimatedIsolatedUnitCost,
     BomUnitCost estimatedAccumulatedUnitCost, Auditor determinedBy,
     OffsetDateTime determinedDate, Auditor draftedBy, OffsetDateTime draftedDate, boolean stable,
     List<BomMaterial> materials) {
-    super(id, revision, itemData, status, processData, estimatedIsolatedUnitCost,
+    super(id, revision, item, status, process, estimatedIsolatedUnitCost,
       estimatedAccumulatedUnitCost, determinedBy, determinedDate, draftedBy, draftedDate, stable);
     this.materials = materials;
   }
@@ -49,7 +48,7 @@ public class BomAggregator extends Bom {
     boolean unstable = materials.stream()
       .filter(material -> !material.getMaterial().isStable())
       .count() > 0;
-    boolean processPlanned = processData != null ? processData.isPlanned() : true;
+    boolean processPlanned = process != null ? process.isPlanned() : true;
 
     if (unstable || !processPlanned) {
       throw new CannotDetermineException();

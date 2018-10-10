@@ -12,12 +12,10 @@ import pico.erp.bom.BomRequests.DeleteRequest;
 import pico.erp.bom.BomRequests.DetermineRequest;
 import pico.erp.bom.BomRequests.DraftRequest;
 import pico.erp.bom.BomRequests.UpdateRequest;
-import pico.erp.bom.data.BomData;
-import pico.erp.bom.data.BomHierarchyData;
-import pico.erp.bom.data.BomId;
+import pico.erp.bom.material.BomMaterialMapper;
 import pico.erp.bom.material.BomMaterialMessages;
 import pico.erp.bom.material.BomMaterialRepository;
-import pico.erp.item.data.ItemId;
+import pico.erp.item.ItemId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
@@ -42,6 +40,9 @@ public class BomServiceLogic implements BomService {
 
   @Autowired
   private BomMapper mapper;
+
+  @Autowired
+  private BomMaterialMapper materialMapper;
 
   @Override
   public void delete(DeleteRequest request) {
@@ -76,7 +77,7 @@ public class BomServiceLogic implements BomService {
         .forEach(material -> {
           val nextRevisionResponse = material.apply(new BomMaterialMessages.NextRevisionRequest(
             created,
-            bomRepository.findWithLastRevision(material.getMaterial().getItemData().getId()).get()
+            bomRepository.findWithLastRevision(material.getMaterial().getItem().getId()).get()
           ));
           val draftedMaterial = nextRevisionResponse.getDrafted();
           bomMaterialRepository.create(draftedMaterial);
@@ -87,7 +88,7 @@ public class BomServiceLogic implements BomService {
       bomMaterialRepository.findAllReferencedBy(previous.getId())
         .forEach(referenced -> {
           if (referenced.isDetermined()) {
-            this.draft(new DraftRequest(BomId.generate(), referenced.getItemData().getId()));
+            this.draft(new DraftRequest(BomId.generate(), referenced.getItem().getId()));
           } else {
             val oldMaterial = bomMaterialRepository.findBy(referenced.getId(), previous.getId())
               .get();
@@ -136,7 +137,7 @@ public class BomServiceLogic implements BomService {
   @Override
   public BomHierarchyData getHierarchy(BomId id) {
     val materials = bomMaterialRepository.findAllBy(id)
-      .map(mapper::map)
+      .map(materialMapper::map)
       .map(material -> this.getHierarchy(material))
       .collect(Collectors.toList());
     return new BomHierarchyData(get(id), materials);
@@ -144,7 +145,7 @@ public class BomServiceLogic implements BomService {
 
   private BomHierarchyData getHierarchy(BomData bom) {
     val materials = bomMaterialRepository.findAllBy(bom.getId())
-      .map(mapper::map)
+      .map(materialMapper::map)
       .map(material -> this.getHierarchy(material))
       .collect(Collectors.toList());
     return new BomHierarchyData(bom, materials);

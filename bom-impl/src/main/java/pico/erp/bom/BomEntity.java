@@ -1,4 +1,4 @@
-package pico.erp.bom.jpa;
+package pico.erp.bom;
 
 
 import java.io.Serializable;
@@ -25,10 +25,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pico.erp.bom.data.BomId;
-import pico.erp.bom.data.BomStatusKind;
-import pico.erp.item.data.ItemId;
-import pico.erp.process.data.ProcessId;
+import pico.erp.bom.unit.cost.BomUnitCostEmbeddable;
+import pico.erp.item.ItemId;
+import pico.erp.process.ProcessId;
 import pico.erp.shared.TypeDefinitions;
 import pico.erp.shared.data.Auditor;
 

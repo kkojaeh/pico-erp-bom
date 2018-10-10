@@ -7,11 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import pico.erp.bom.BomData;
 import pico.erp.bom.BomExceptions;
-import pico.erp.bom.BomMapper;
+import pico.erp.bom.BomId;
 import pico.erp.bom.BomRepository;
-import pico.erp.bom.data.BomData;
-import pico.erp.bom.data.BomId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.EventPublisher;
 
@@ -32,7 +31,7 @@ public class BomMaterialServiceLogic implements BomMaterialService {
   private EventPublisher eventPublisher;
 
   @Autowired
-  private BomMapper mapper;
+  private BomMaterialMapper mapper;
 
   @Override
   public BomData create(BomMaterialRequests.CreateRequest request) {

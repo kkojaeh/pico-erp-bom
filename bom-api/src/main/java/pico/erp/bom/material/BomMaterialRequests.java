@@ -7,8 +7,8 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pico.erp.bom.data.BomId;
-import pico.erp.item.data.ItemSpecId;
+import pico.erp.bom.BomId;
+import pico.erp.item.spec.ItemSpecId;
 
 public interface BomMaterialRequests {
 

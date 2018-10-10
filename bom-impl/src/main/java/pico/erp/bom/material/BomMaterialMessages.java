@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Value;
 import pico.erp.bom.Bom;
-import pico.erp.item.data.ItemSpecData;
+import pico.erp.item.spec.ItemSpecData;
 import pico.erp.shared.event.Event;
 
 public interface BomMaterialMessages {

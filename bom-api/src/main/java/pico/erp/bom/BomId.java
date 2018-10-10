@@ -1,4 +1,4 @@
-package pico.erp.bom.data;
+package pico.erp.bom;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.io.Serializable;

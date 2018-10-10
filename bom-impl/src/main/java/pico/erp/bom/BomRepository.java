@@ -3,9 +3,8 @@ package pico.erp.bom;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
-import pico.erp.bom.data.BomId;
-import pico.erp.item.data.ItemId;
-import pico.erp.process.data.ProcessId;
+import pico.erp.item.ItemId;
+import pico.erp.process.ProcessId;
 
 public interface BomRepository {
 

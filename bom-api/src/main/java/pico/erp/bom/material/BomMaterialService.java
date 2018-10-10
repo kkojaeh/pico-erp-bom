@@ -3,8 +3,8 @@ package pico.erp.bom.material;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import pico.erp.bom.data.BomData;
-import pico.erp.bom.data.BomId;
+import pico.erp.bom.BomData;
+import pico.erp.bom.BomId;
 
 public interface BomMaterialService {
 

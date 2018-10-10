@@ -16,7 +16,6 @@ import lombok.val;
 import pico.erp.bom.Bom;
 import pico.erp.bom.Bom.BomCalculateContext;
 import pico.erp.bom.BomExceptions;
-import pico.erp.bom.BomUnitCost;
 import pico.erp.bom.material.BomMaterialMessages.CreateRequest;
 import pico.erp.bom.material.BomMaterialMessages.CreateResponse;
 import pico.erp.bom.material.BomMaterialMessages.DeleteRequest;
@@ -27,7 +26,8 @@ import pico.erp.bom.material.BomMaterialMessages.SwapRequest;
 import pico.erp.bom.material.BomMaterialMessages.SwapResponse;
 import pico.erp.bom.material.BomMaterialMessages.UpdateRequest;
 import pico.erp.bom.material.BomMaterialMessages.UpdateResponse;
-import pico.erp.item.data.ItemSpecData;
+import pico.erp.bom.unit.cost.BomUnitCost;
+import pico.erp.item.spec.ItemSpecData;
 
 @Builder
 @Getter

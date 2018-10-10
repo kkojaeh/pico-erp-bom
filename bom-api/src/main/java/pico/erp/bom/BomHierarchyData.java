@@ -1,4 +1,4 @@
-package pico.erp.bom.data;
+package pico.erp.bom;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -12,10 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import pico.erp.bom.data.BomHierarchyData.BomHierarchyDataBuilder;
-import pico.erp.item.data.ItemId;
-import pico.erp.item.data.ItemSpecId;
-import pico.erp.process.data.ProcessId;
+import pico.erp.bom.BomHierarchyData.BomHierarchyDataBuilder;
+import pico.erp.bom.unit.cost.BomUnitCostData;
+import pico.erp.item.ItemId;
+import pico.erp.item.spec.ItemSpecId;
+import pico.erp.process.ProcessId;
 import pico.erp.shared.data.Auditor;
 
 @Getter

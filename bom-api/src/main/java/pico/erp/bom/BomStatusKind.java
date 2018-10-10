@@ -1,4 +1,4 @@
-package pico.erp.bom.data;
+package pico.erp.bom;
 
 import pico.erp.shared.data.LocalizedNameable;
 

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import pico.erp.shared.data.Role;
 
 @RequiredArgsConstructor
-public enum ROLE implements Role {
+public enum BomRoles implements Role {
 
   BOM_MANAGER,
   BOM_ACCESSOR;

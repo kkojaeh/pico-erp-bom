@@ -1,4 +1,4 @@
-package pico.erp.bom.data;
+package pico.erp.bom.unit.cost;
 
 import java.math.BigDecimal;
 import lombok.AccessLevel;

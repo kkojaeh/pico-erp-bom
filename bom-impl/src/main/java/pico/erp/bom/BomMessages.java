@@ -8,9 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Value;
-import pico.erp.bom.data.BomId;
-import pico.erp.item.data.ItemData;
-import pico.erp.process.data.ProcessData;
+import pico.erp.item.ItemData;
+import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -37,7 +36,7 @@ public interface BomMessages {
 
     @Valid
     @NotNull
-    ItemData itemData;
+    ItemData item;
 
     Bom lastRevision;
 
@@ -64,7 +63,7 @@ public interface BomMessages {
   class UpdateRequest {
 
     @Valid
-    ProcessData processData;
+    ProcessData process;
 
   }
 
