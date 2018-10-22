@@ -51,12 +51,12 @@ public class BomEntity implements Serializable {
 
   @EmbeddedId
   @AttributeOverrides({
-    @AttributeOverride(name = "value", column = @Column(name = "ID", length = TypeDefinitions.ID_LENGTH))
+    @AttributeOverride(name = "value", column = @Column(name = "ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
   })
   BomId id;
 
   @AttributeOverrides({
-    @AttributeOverride(name = "value", column = @Column(name = "ITEM_ID", length = TypeDefinitions.ID_LENGTH)),
+    @AttributeOverride(name = "value", column = @Column(name = "ITEM_ID", length = TypeDefinitions.UUID_BINARY_LENGTH)),
   })
   ItemId itemId;
 
@@ -68,7 +68,7 @@ public class BomEntity implements Serializable {
   BomStatusKind status;
 
   @AttributeOverrides({
-    @AttributeOverride(name = "value", column = @Column(name = "PROCESS_ID", length = TypeDefinitions.ID_LENGTH))
+    @AttributeOverride(name = "value", column = @Column(name = "PROCESS_ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
   })
   ProcessId processId;
 
@@ -129,13 +129,4 @@ public class BomEntity implements Serializable {
   OffsetDateTime lastModifiedDate;
 
   boolean stable;
-
-  /*
-  @ElementCollection(fetch = FetchType.LAZY)
-  @CollectionTable(name = "BOM_BOM_MATERIAL", joinColumns = @JoinColumn(name = "ID"))
-  */
-  /*@OneToMany(cascade = CascadeType.ALL, mappedBy = "bom", orphanRemoval = true)
-  @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-  List<BomMaterialEntity> materials = new LinkedList<>();*/
-
 }

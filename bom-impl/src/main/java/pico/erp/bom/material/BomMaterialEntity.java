@@ -8,7 +8,6 @@ import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
@@ -52,7 +51,7 @@ public class BomMaterialEntity implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @EmbeddedId
+  @Id
   @ManyToOne
   @JoinColumn(name = "MATERIAL_ID")
   BomEntity material;
@@ -88,7 +87,7 @@ public class BomMaterialEntity implements Serializable {
   BigDecimal quantity;
 
   @AttributeOverrides({
-    @AttributeOverride(name = "value", column = @Column(name = "ITEM_SPEC_ID", length = TypeDefinitions.ID_LENGTH))
+    @AttributeOverride(name = "value", column = @Column(name = "ITEM_SPEC_ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
   })
   ItemSpecId itemSpecId;
 
@@ -136,28 +135,6 @@ public class BomMaterialEntity implements Serializable {
 
   @LastModifiedDate
   OffsetDateTime lastModifiedDate;
-
-  /*
-  @Builder
-  public BomMaterialEntity(BomEntity bom, BigDecimal quantity, ItemSpecId itemSpecId,
-    BomUnitCostEmbeddable estimatedIsolatedUnitCost
-    , BomUnitCostEmbeddable estimatedAccumulatedUnitCost) {
-    this.bom = bom;
-    this.quantity = quantity;
-    this.itemSpecIdValue = Optional.ofNullable(itemSpecId)
-      .map(id -> id.getValue())
-      .orElse(null);
-    this.estimatedIsolatedUnitCost = estimatedIsolatedUnitCost;
-    this.estimatedAccumulatedUnitCost = estimatedAccumulatedUnitCost;
-  }
-
-  public ItemSpecId getItemSpecId() {
-    if (itemSpecIdValue != null) {
-      return ItemSpecId.from(itemSpecIdValue);
-    }
-    return null;
-  }
-  */
 
 }
 
