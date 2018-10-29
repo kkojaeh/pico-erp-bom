@@ -89,9 +89,9 @@ public class BomUnitCost implements Serializable {
   public BomUnitCost with(BomCalculateContext context) {
     BigDecimal directMaterial = this.directMaterial;
     BigDecimal total = this.total;
-    if (context.getItemSpecData() != null) {
+    if (context.getItemSpec() != null) {
       total = total.subtract(directMaterial);
-      directMaterial = context.getItemSpecData().getBaseUnitCost();
+      directMaterial = context.getItemSpec().getBaseUnitCost();
       total = total.add(directMaterial);
     }
     return BomUnitCost.builder()

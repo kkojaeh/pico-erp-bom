@@ -7,13 +7,11 @@ import java.time.OffsetDateTime;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,9 +26,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pico.erp.bom.BomEntity;
 import pico.erp.bom.BomId;
-import pico.erp.bom.material.BomMaterialEntity.BomMaterialKey;
 import pico.erp.bom.unit.cost.BomUnitCostEmbeddable;
 import pico.erp.item.spec.ItemSpecId;
 import pico.erp.shared.TypeDefinitions;
@@ -40,28 +36,20 @@ import pico.erp.shared.data.Auditor;
 @Data
 @Entity(name = "BomMaterial")
 @Table(name = "BOM_BOM_MATERIAL")
-@EqualsAndHashCode(of = {"bom", "material"})
+@EqualsAndHashCode(of = {"key"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners({AuditingEntityListener.class, BomMaterialEntity.class})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(BomMaterialKey.class)
 public class BomMaterialEntity implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @Id
-  @ManyToOne
-  @JoinColumn(name = "MATERIAL_ID")
-  BomEntity material;
+  @EmbeddedId
+  BomMaterialKey key;
 
-
-  @Id
-  @ManyToOne
-  @JoinColumn(name = "BOM_ID")
-  BomEntity bom;
-
+  @Embeddable
   @AllArgsConstructor
   @NoArgsConstructor
   @Data
@@ -69,9 +57,15 @@ public class BomMaterialEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    BomId bom;
+    @AttributeOverrides({
+      @AttributeOverride(name = "value", column = @Column(name = "BOM_ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
+    })
+    BomId bomId;
 
-    BomId material;
+    @AttributeOverrides({
+      @AttributeOverride(name = "value", column = @Column(name = "MATERIAL_ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
+    })
+    BomId materialId;
 
     public static BomMaterialKey from(BomId bomId, BomId materialId) {
       return new BomMaterialKey(bomId, materialId);

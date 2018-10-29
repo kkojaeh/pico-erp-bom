@@ -20,10 +20,10 @@ import pico.erp.item.spec.ItemSpecId;
 @Repository
 interface BomMaterialEntityRepository extends CrudRepository<BomMaterialEntity, BomMaterialKey> {
 
-  @Query("SELECT bm.bom FROM BomMaterial bm JOIN bm.material m WHERE m.id = :materialId")
+  @Query("SELECT b FROM BomMaterial bm JOIN Bom b ON bm.key.bomId = b.id WHERE bm.key.materialId = :materialId")
   Stream<BomEntity> findAllBomBy(@Param("materialId") BomId materialId);
 
-  @Query("SELECT bm FROM BomMaterial bm JOIN bm.bom b WHERE b.id = :bomId")
+  @Query("SELECT bm FROM BomMaterial bm WHERE bm.key.bomId = :bomId")
   Stream<BomMaterialEntity> findAllMaterialBy(@Param("bomId") BomId bomId);
 /*
 

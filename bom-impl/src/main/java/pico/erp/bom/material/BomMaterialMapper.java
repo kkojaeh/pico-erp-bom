@@ -11,14 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import pico.erp.bom.Bom;
 import pico.erp.bom.BomData;
-import pico.erp.bom.BomEntity;
 import pico.erp.bom.BomId;
 import pico.erp.bom.BomMapper;
+import pico.erp.bom.material.BomMaterialEntity.BomMaterialKey;
 import pico.erp.item.spec.ItemSpecData;
 import pico.erp.item.spec.ItemSpecId;
 import pico.erp.item.spec.ItemSpecService;
 
-@Mapper(imports = {BomEntity.class, BomId.class})
+@Mapper(imports = {BomMaterialKey.class, BomId.class})
 public abstract class BomMaterialMapper {
 
   @Lazy
@@ -34,17 +34,16 @@ public abstract class BomMaterialMapper {
 
   public BomMaterial domain(BomMaterialEntity entity) {
     return BomMaterial.builder()
-      .bom(bomMapper.domain(entity.getBom()))
-      .material(bomMapper.domain(entity.getMaterial()))
+      .bom(map(entity.getKey().getBomId()))
+      .material(map(entity.getKey().getMaterialId()))
       .quantity(entity.getQuantity())
-      .itemSpecData(map(entity.getItemSpecId()))
+      .itemSpec(map(entity.getItemSpecId()))
       .build();
   }
 
   @Mappings({
-    @Mapping(target = "bom", expression = "java(entityManager.getReference(BomEntity.class, material.getBom().getId()))"),
-    @Mapping(target = "material", expression = "java(entityManager.getReference(BomEntity.class, material.getMaterial().getId()))"),
-    @Mapping(target = "itemSpecId", source = "itemSpecData.id"),
+    @Mapping(target = "key", expression = "java(BomMaterialKey.from(material.getBom().getId(), material.getMaterial().getId()))"),
+    @Mapping(target = "itemSpecId", source = "itemSpec.id"),
     @Mapping(target = "createdBy", ignore = true),
     @Mapping(target = "createdDate", ignore = true),
     @Mapping(target = "lastModifiedBy", ignore = true),
@@ -55,12 +54,12 @@ public abstract class BomMaterialMapper {
   @Mappings({
     @Mapping(target = "bom", source = "bomId"),
     @Mapping(target = "material", source = "materialId"),
-    @Mapping(target = "itemSpecData", source = "itemSpecId")
+    @Mapping(target = "itemSpec", source = "itemSpecId")
   })
   public abstract BomMaterialMessages.CreateRequest map(BomMaterialRequests.CreateRequest request);
 
   @Mappings({
-    @Mapping(target = "itemSpecData", source = "itemSpecId")
+    @Mapping(target = "itemSpec", source = "itemSpecId")
   })
   public abstract BomMaterialMessages.UpdateRequest map(BomMaterialRequests.UpdateRequest request);
 
@@ -83,7 +82,7 @@ public abstract class BomMaterialMapper {
     @Mapping(target = "material", source = "material.material"),
     @Mapping(target = "modifiable", expression = "java(material.getMaterial().canModify())"),
     @Mapping(target = "stable", expression = "java(material.getMaterial().isStable())"),
-    @Mapping(target = "itemSpecId", source = "itemSpecData.id"),
+    @Mapping(target = "itemSpecId", source = "itemSpec.id"),
     @Mapping(target = "parent", source = "bom"),
 
   })

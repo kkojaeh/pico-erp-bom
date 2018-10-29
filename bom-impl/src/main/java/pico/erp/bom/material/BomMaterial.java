@@ -47,7 +47,7 @@ public class BomMaterial implements Serializable {
 
   BigDecimal quantity;
 
-  ItemSpecData itemSpecData;
+  ItemSpecData itemSpec;
 
   public CreateResponse apply(CreateRequest request) {
     if (!request.getBom().canModify()) {
@@ -56,7 +56,7 @@ public class BomMaterial implements Serializable {
     this.bom = request.getBom();
     this.material = request.getMaterial();
     this.quantity = request.getQuantity();
-    this.itemSpecData = request.getItemSpecData();
+    this.itemSpec = request.getItemSpec();
     return new CreateResponse(
       Arrays.asList(new BomMaterialEvents.CreatedEvent(bom.getId(), material.getId()))
     );
@@ -67,7 +67,7 @@ public class BomMaterial implements Serializable {
       throw new BomExceptions.CannotModifyException();
     }
     this.quantity = request.getQuantity();
-    this.itemSpecData = request.getItemSpecData();
+    this.itemSpec = request.getItemSpec();
     return new UpdateResponse(
       Arrays.asList(new BomMaterialEvents.UpdatedEvent(bom.getId(), material.getId()))
     );
@@ -88,7 +88,7 @@ public class BomMaterial implements Serializable {
     drafted.bom = request.getDrafted();
     drafted.material = request.getLastRevisionMaterial();
     drafted.quantity = quantity;
-    drafted.itemSpecData = itemSpecData;
+    drafted.itemSpec = itemSpec;
     return new NextRevisionResponse(
       drafted, Collections.emptyList()
     );
@@ -100,19 +100,19 @@ public class BomMaterial implements Serializable {
     swapped.bom = bom;
     swapped.material = request.getMaterial();
     swapped.quantity = quantity;
-    swapped.itemSpecData = itemSpecData;
+    swapped.itemSpec = itemSpec;
     return new SwapResponse(
       swapped, Collections.emptyList()
     );
   }
 
   public BomUnitCost getEstimatedAccumulatedUnitCost() {
-    val context = new BomCalculateContext(itemSpecData);
+    val context = new BomCalculateContext(itemSpec);
     return material.getEstimatedAccumulatedUnitCost().with(context);
   }
 
   public BomUnitCost getEstimatedIsolatedUnitCost() {
-    val context = new BomCalculateContext(itemSpecData);
+    val context = new BomCalculateContext(itemSpec);
     return material.getEstimatedIsolatedUnitCost().with(context);
   }
 

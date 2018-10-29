@@ -22,7 +22,7 @@ public interface BomMaterialMessages {
 
     BigDecimal quantity;
 
-    ItemSpecData itemSpecData;
+    ItemSpecData itemSpec;
 
   }
 
@@ -50,7 +50,7 @@ public interface BomMaterialMessages {
 
     BigDecimal quantity;
 
-    ItemSpecData itemSpecData;
+    ItemSpecData itemSpec;
 
   }
 

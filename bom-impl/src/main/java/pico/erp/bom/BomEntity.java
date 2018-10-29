@@ -34,7 +34,7 @@ import pico.erp.shared.data.Auditor;
 @Entity(name = "Bom")
 @Table(name = "BOM_BOM", indexes = {
   // revision 변경시 이전 예전 revision 이 insert 되기 때문에 unique 사용 불가
-  @Index(name = "BOM_BOM_ITEM_ID_REVISION_IDX", columnList = "ITEM_ID, REVISION")
+  @Index(columnList = "ITEM_ID, REVISION")
 })
 @Data
 @EqualsAndHashCode(of = "id")

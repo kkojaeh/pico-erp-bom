@@ -194,7 +194,7 @@ public class Bom implements Serializable {
   @ToString
   public static class BomCalculateContext {
 
-    ItemSpecData itemSpecData;
+    ItemSpecData itemSpec;
 
   }
 
