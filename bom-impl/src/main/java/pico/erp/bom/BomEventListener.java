@@ -2,6 +2,7 @@ package pico.erp.bom;
 
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,8 @@ import pico.erp.bom.material.BomMaterialEvents;
 import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.ItemEvents;
 import pico.erp.item.spec.ItemSpecEvents;
+import pico.erp.item.spec.ItemSpecRequests;
+import pico.erp.item.spec.ItemSpecService;
 import pico.erp.process.ProcessEvents;
 import pico.erp.shared.event.EventPublisher;
 
@@ -33,6 +36,10 @@ public class BomEventListener {
 
   @Autowired
   private BomMapper bomMapper;
+
+  @Lazy
+  @Autowired
+  private ItemSpecService itemSpecService;
 
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.CreatedEvent.CHANNEL)
@@ -59,10 +66,21 @@ public class BomEventListener {
     this.verifyBom(event.getBomId());
   }
 
+  /**
+   * BOM 이 확정 되면 하위 BOM 과 연결된 품목 스펙을 잠금
+   */
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.NextRevisionCreatedEvent.CHANNEL)
-  public void onBomNextRevisionCreated(BomEvents.NextRevisionCreatedEvent event) {
-    this.verifyBom(event.getBomId());
+  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeterminedEvent.CHANNEL)
+  public void onBomDetermined(BomEvents.DeterminedEvent event) {
+    bomMaterialRepository.findAllBy(event.getBomId())
+      .forEach(bomMaterial -> {
+        val itemSpec = bomMaterial.getItemSpec();
+        if (itemSpec != null && !itemSpec.isLocked()) {
+          itemSpecService.lock(
+            new ItemSpecRequests.LockRequest(itemSpec.getId())
+          );
+        }
+      });
   }
 
   @EventListener
@@ -151,6 +169,25 @@ public class BomEventListener {
           eventPublisher.publishEvents(response.getEvents());
         });
     }
+  }
+
+  /**
+   * BOM 이 새버전이되면 하위 BOM 과 연결된 품목 스펙을 잠금해제
+   * @param event
+   */
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.NextRevisionCreatedEvent.CHANNEL)
+  public void onBomNextRevisionCreated(BomEvents.NextRevisionCreatedEvent event) {
+    bomMaterialRepository.findAllBy(event.getBomId())
+      .forEach(bomMaterial -> {
+        val itemSpec = bomMaterial.getItemSpec();
+        if (itemSpec != null && itemSpec.isLocked()) {
+          itemSpecService.unlock(
+            new ItemSpecRequests.UnlockRequest(itemSpec.getId())
+          );
+        }
+      });
+    this.verifyBom(event.getBomId());
   }
 
 }
