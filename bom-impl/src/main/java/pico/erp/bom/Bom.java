@@ -126,7 +126,7 @@ public class Bom implements Serializable {
   }
 
   public BomMessages.UpdateResponse apply(BomMessages.UpdateRequest request) {
-    if (!canModify()) {
+    if (!isModifiable()) {
       throw new CannotModifyException();
     }
     process = request.getProcess();
@@ -136,7 +136,7 @@ public class Bom implements Serializable {
     );
   }
 
-  public boolean canModify() {
+  public boolean isModifiable() {
     return status == BomStatusKind.DRAFT;
   }
 

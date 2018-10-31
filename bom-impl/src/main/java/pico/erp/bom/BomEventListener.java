@@ -95,7 +95,7 @@ public class BomEventListener {
     bomRepository.findAllBy(event.getProcessId())
       .forEach(bom -> {
         if (!bom.isExpired()) {
-          if (bom.canModify()) {
+          if (bom.isModifiable()) {
             val response = bom.apply(
               BomMessages.UpdateRequest.builder()
                 .process(null)

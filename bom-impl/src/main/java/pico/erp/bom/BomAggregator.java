@@ -69,7 +69,7 @@ public class BomAggregator extends Bom {
     val events = new LinkedList<Event>();
     stable =
       materials.stream().filter(material -> !material.getMaterial().isStable()).count() == 0;
-    if (this.canModify()) {
+    if (this.isModifiable()) {
       val oldIsolated = estimatedIsolatedUnitCost;
       val oldAccumulated = estimatedAccumulatedUnitCost;
       val newIsolated = new BomUnitCost(this);

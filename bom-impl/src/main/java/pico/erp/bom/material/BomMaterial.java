@@ -50,7 +50,7 @@ public class BomMaterial implements Serializable {
   ItemSpecData itemSpec;
 
   public CreateResponse apply(CreateRequest request) {
-    if (!request.getBom().canModify()) {
+    if (!request.getBom().isModifiable()) {
       throw new BomExceptions.CannotModifyException();
     }
     this.bom = request.getBom();
@@ -63,7 +63,7 @@ public class BomMaterial implements Serializable {
   }
 
   public UpdateResponse apply(UpdateRequest request) {
-    if (!bom.canModify()) {
+    if (!bom.isModifiable()) {
       throw new BomExceptions.CannotModifyException();
     }
     this.quantity = request.getQuantity();
@@ -74,7 +74,7 @@ public class BomMaterial implements Serializable {
   }
 
   public DeleteResponse apply(DeleteRequest request) {
-    if (!bom.canModify()) {
+    if (!bom.isModifiable()) {
       throw new BomExceptions.CannotModifyException();
     }
     return new DeleteResponse(
