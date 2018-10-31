@@ -73,7 +73,7 @@ public class BomServiceLogic implements BomService {
     if (previous != null) {
       bomRepository.update(previous);
       // 새로 생성된 BOM 에 기존 BOM 의 자재를 동일하게 생성
-      bomMaterialRepository.findAllBy(previous.getId())
+      bomMaterialRepository.findAllIncludedMaterialBy(previous.getId())
         .forEach(material -> {
           val nextRevisionResponse = material.apply(new BomMaterialMessages.NextRevisionRequest(
             created,
@@ -85,7 +85,7 @@ public class BomServiceLogic implements BomService {
 
         });
       // 새로 생성된 BOM 을 참조하고 있는 BOM 의 새버전을 생성하거나 해당 자재만 교체
-      bomMaterialRepository.findAllReferencedBy(previous.getId())
+      bomMaterialRepository.findAllIncludeMaterialBomBy(previous.getId())
         .forEach(referenced -> {
           if (referenced.isDetermined()) {
             this.draft(new DraftRequest(BomId.generate(), referenced.getItem().getId()));
@@ -136,7 +136,7 @@ public class BomServiceLogic implements BomService {
 
   @Override
   public BomHierarchyData getHierarchy(BomId id) {
-    val materials = bomMaterialRepository.findAllBy(id)
+    val materials = bomMaterialRepository.findAllIncludedMaterialBy(id)
       .map(materialMapper::map)
       .map(material -> this.getHierarchy(material))
       .collect(Collectors.toList());
@@ -144,7 +144,7 @@ public class BomServiceLogic implements BomService {
   }
 
   private BomHierarchyData getHierarchy(BomData bom) {
-    val materials = bomMaterialRepository.findAllBy(bom.getId())
+    val materials = bomMaterialRepository.findAllIncludedMaterialBy(bom.getId())
       .map(materialMapper::map)
       .map(material -> this.getHierarchy(material))
       .collect(Collectors.toList());

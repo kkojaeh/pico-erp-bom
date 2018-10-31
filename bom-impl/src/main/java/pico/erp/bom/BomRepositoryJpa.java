@@ -22,7 +22,7 @@ interface BomEntityRepository extends CrudRepository<BomEntity, BomId> {
   Stream<BomEntity> findAllBy(@Param("itemId") ItemId itemId);
 
   /*@Query("SELECT b FROM Bom b JOIN b.materials m WHERE m.material = :material")
-  Stream<BomEntity> findAllBy(@Param("material") BomEntity material);*/
+  Stream<BomEntity> findAllIncludedMaterialBy(@Param("material") BomEntity material);*/
 
   @Query("SELECT b FROM Bom b WHERE b.itemId = :itemId AND b.revision = :revision")
   BomEntity findBy(@Param("itemId") ItemId itemId, @Param("revision") Integer revision);

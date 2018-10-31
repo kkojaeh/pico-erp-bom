@@ -71,7 +71,7 @@ public abstract class BomMapper {
       .determinedDate(entity.getDeterminedDate())
       .stable(entity.isStable())
       .materials(
-        bomMaterialRepository.findAllBy(entity.getId()).collect(Collectors.toList())
+        bomMaterialRepository.findAllIncludedMaterialBy(entity.getId()).collect(Collectors.toList())
       )
       .build();
   }

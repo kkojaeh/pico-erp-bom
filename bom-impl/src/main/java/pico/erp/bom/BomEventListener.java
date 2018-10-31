@@ -47,11 +47,21 @@ public class BomEventListener {
     this.verifyBom(event.getBomId());
   }
 
+  /**
+   * BOM 이 확정 되면 하위 BOM 과 연결된 품목 스펙을 잠금
+   */
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + EstimatedUnitCostChangedEvent.CHANNEL)
-  public void onBomEstimatedUnitCostChanged(EstimatedUnitCostChangedEvent event) {
-    bomMaterialRepository.findAllReferencedBy(event.getBomId())
-      .forEach(this::verifyBom);
+  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeterminedEvent.CHANNEL)
+  public void onBomDetermined(BomEvents.DeterminedEvent event) {
+    bomMaterialRepository.findAllIncludedMaterialBy(event.getBomId())
+      .forEach(bomMaterial -> {
+        val itemSpec = bomMaterial.getItemSpec();
+        if (itemSpec != null && !itemSpec.isLocked()) {
+          itemSpecService.lock(
+            new ItemSpecRequests.LockRequest(itemSpec.getId())
+          );
+        }
+      });
   }
 
   @EventListener
@@ -66,21 +76,11 @@ public class BomEventListener {
     this.verifyBom(event.getBomId());
   }
 
-  /**
-   * BOM 이 확정 되면 하위 BOM 과 연결된 품목 스펙을 잠금
-   */
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeterminedEvent.CHANNEL)
-  public void onBomDetermined(BomEvents.DeterminedEvent event) {
-    bomMaterialRepository.findAllBy(event.getBomId())
-      .forEach(bomMaterial -> {
-        val itemSpec = bomMaterial.getItemSpec();
-        if (itemSpec != null && !itemSpec.isLocked()) {
-          itemSpecService.lock(
-            new ItemSpecRequests.LockRequest(itemSpec.getId())
-          );
-        }
-      });
+  @JmsListener(destination = LISTENER_NAME + "." + EstimatedUnitCostChangedEvent.CHANNEL)
+  public void onBomEstimatedUnitCostChanged(EstimatedUnitCostChangedEvent event) {
+    bomMaterialRepository.findAllIncludeMaterialBomBy(event.getBomId())
+      .forEach(this::verifyBom);
   }
 
   @EventListener
@@ -178,7 +178,7 @@ public class BomEventListener {
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.NextRevisionCreatedEvent.CHANNEL)
   public void onBomNextRevisionCreated(BomEvents.NextRevisionCreatedEvent event) {
-    bomMaterialRepository.findAllBy(event.getBomId())
+    bomMaterialRepository.findAllIncludedMaterialBy(event.getBomId())
       .forEach(bomMaterial -> {
         val itemSpec = bomMaterial.getItemSpec();
         if (itemSpec != null && itemSpec.isLocked()) {

@@ -24,12 +24,17 @@ public interface BomMaterialRepository {
    */
   Stream<Bom> findAllAscendBy(@NotNull BomId materialId);
 
-  Stream<BomMaterial> findAllBy(@NotNull BomId bomId);
+  /**
+   * material 을 사용하고 있는 bom 을 검색하여 리턴
+   */
+  Stream<Bom> findAllIncludeMaterialBomBy(@NotNull BomId materialId);
 
   /**
-   * material 을 사용하고 있는 bom 을 검색하여 리턴 한다.
+   * bomId 에 포함된 자재를 리턴
+   * @param bomId
+   * @return
    */
-  Stream<Bom> findAllReferencedBy(@NotNull BomId materialId);
+  Stream<BomMaterial> findAllIncludedMaterialBy(@NotNull BomId bomId);
 
   Optional<BomMaterial> findBy(@NotNull BomId bomId, @NotNull BomId materialId);
 

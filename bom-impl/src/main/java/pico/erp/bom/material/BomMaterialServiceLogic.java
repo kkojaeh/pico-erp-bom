@@ -83,7 +83,7 @@ public class BomMaterialServiceLogic implements BomMaterialService {
 
   @Override
   public List<BomData> getAll(BomId bomId) {
-    return bomMaterialRepository.findAllBy(bomId)
+    return bomMaterialRepository.findAllIncludedMaterialBy(bomId)
       .map(mapper::map)
       .collect(Collectors.toList());
   }

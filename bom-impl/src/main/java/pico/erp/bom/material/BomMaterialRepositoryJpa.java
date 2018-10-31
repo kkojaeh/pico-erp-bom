@@ -21,15 +21,10 @@ import pico.erp.item.spec.ItemSpecId;
 interface BomMaterialEntityRepository extends CrudRepository<BomMaterialEntity, BomMaterialKey> {
 
   @Query("SELECT b FROM BomMaterial bm JOIN Bom b ON bm.key.bomId = b.id WHERE bm.key.materialId = :materialId")
-  Stream<BomEntity> findAllBomBy(@Param("materialId") BomId materialId);
+  Stream<BomEntity> findAllIncludeMaterialBomBy(@Param("materialId") BomId materialId);
 
   @Query("SELECT bm FROM BomMaterial bm WHERE bm.key.bomId = :bomId")
-  Stream<BomMaterialEntity> findAllMaterialBy(@Param("bomId") BomId bomId);
-/*
-
-  @Query("SELECT bm.bom FROM BomMaterial bm JOIN bm.material m WHERE m.id = :materialId")
-  Stream<BomEntity> findAllBy(@Param("materialId") BomId materialId);
-*/
+  Stream<BomMaterialEntity> findAllIncludedMaterialBy(@Param("bomId") BomId bomId);
 
   @Query("SELECT bm FROM BomMaterial bm WHERE bm.itemSpecId = :itemSpecId")
   BomMaterialEntity findBy(@Param("itemSpecId") ItemSpecId itemSpecId);
@@ -78,26 +73,26 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
 
   @Override
   public Stream<Bom> findAllAscendBy(BomId materialId) {
-    val references = repository.findAllBomBy(materialId)
+    val references = repository.findAllIncludeMaterialBomBy(materialId)
       .map(bomMapper::domain)
       .collect(Collectors.toList());
     references.addAll(
-      references.stream().flatMap(bom -> this.findAllReferencedBy(bom.getId()))
+      references.stream().flatMap(bom -> this.findAllIncludeMaterialBomBy(bom.getId()))
         .collect(Collectors.toList())
     );
     return references.stream();
   }
 
   @Override
-  public Stream<BomMaterial> findAllBy(BomId id) {
-    return repository.findAllMaterialBy(id)
-      .map(mapper::domain);
+  public Stream<Bom> findAllIncludeMaterialBomBy(BomId materialId) {
+    return repository.findAllIncludeMaterialBomBy(materialId)
+      .map(bomMapper::domain);
   }
 
   @Override
-  public Stream<Bom> findAllReferencedBy(BomId materialId) {
-    return repository.findAllBomBy(materialId)
-      .map(bomMapper::domain);
+  public Stream<BomMaterial> findAllIncludedMaterialBy(BomId id) {
+    return repository.findAllIncludedMaterialBy(id)
+      .map(mapper::domain);
   }
 
   @Override
