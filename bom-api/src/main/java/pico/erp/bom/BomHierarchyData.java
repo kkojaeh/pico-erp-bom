@@ -21,7 +21,7 @@ import pico.erp.shared.data.Auditor;
 
 @Getter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = BomHierarchyDataBuilder.class)
@@ -53,15 +53,26 @@ public class BomHierarchyData extends BomData {
     this.materials = materials;
   }
 
-  public void visit(BomHierarchyVisitor visitor) {
-    this.visit(visitor, 0);
+  public void visitInOrder(BomHierarchyVisitor visitor) {
+    this.visitInOrder(visitor, 0);
   }
 
-  private void visit(BomHierarchyVisitor visitor, int level) {
+  private void visitInOrder(BomHierarchyVisitor visitor, int level) {
     visitor.visit(this, level);
     if (materials != null) {
-      materials.forEach(material -> material.visit(visitor, level + 1));
+      materials.forEach(material -> material.visitInOrder(visitor, level + 1));
     }
+  }
+
+  public void visitPostOrder(BomHierarchyVisitor visitor) {
+    this.visitPostOrder(visitor, 0);
+  }
+
+  private void visitPostOrder(BomHierarchyVisitor visitor, int level) {
+    if (materials != null) {
+      materials.forEach(material -> material.visitPostOrder(visitor, level + 1));
+    }
+    visitor.visit(this, level);
   }
 
   public interface BomHierarchyVisitor {

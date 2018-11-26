@@ -379,4 +379,29 @@ class BomServiceSpec extends Specification {
     bom.estimatedAccumulatedUnitCost.directMaterial == 700
   }
 
+  def "BOM visit in order"() {
+    when:
+    def levels = []
+
+    def hierarchy = bomService.getHierarchy(BomId.from("bom-1"))
+    hierarchy.visitInOrder({
+      bom, level -> levels.add(level)
+    })
+
+    then:
+    levels == [0, 1, 2, 3, 4]
+  }
+
+  def "BOM visit post order"() {
+    when:
+    def levels = []
+
+    def hierarchy = bomService.getHierarchy(BomId.from("bom-1"))
+    hierarchy.visitPostOrder({
+      bom, level -> levels.add(level)
+    })
+    then:
+    levels == [4, 3, 2, 1, 0]
+  }
+
 }
