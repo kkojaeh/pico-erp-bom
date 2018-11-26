@@ -385,7 +385,7 @@ class BomServiceSpec extends Specification {
 
     def hierarchy = bomService.getHierarchy(BomId.from("bom-1"))
     hierarchy.visitInOrder({
-      bom, level -> levels.add(level)
+      bom, parents -> levels.add(parents.size())
     })
 
     then:
@@ -398,7 +398,7 @@ class BomServiceSpec extends Specification {
 
     def hierarchy = bomService.getHierarchy(BomId.from("bom-1"))
     hierarchy.visitPostOrder({
-      bom, level -> levels.add(level)
+      bom, parents -> levels.add(parents.size())
     })
     then:
     levels == [4, 3, 2, 1, 0]

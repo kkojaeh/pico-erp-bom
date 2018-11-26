@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Stack;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -54,30 +55,34 @@ public class BomHierarchyData extends BomData {
   }
 
   public void visitInOrder(BomHierarchyVisitor visitor) {
-    this.visitInOrder(visitor, 0);
+    this.visitInOrder(visitor, new Stack<>());
   }
 
-  private void visitInOrder(BomHierarchyVisitor visitor, int level) {
-    visitor.visit(this, level);
+  private void visitInOrder(BomHierarchyVisitor visitor, Stack<BomHierarchyData> parents) {
+    visitor.visit(this, parents);
     if (materials != null) {
-      materials.forEach(material -> material.visitInOrder(visitor, level + 1));
+      parents.push(this);
+      materials.forEach(material -> material.visitInOrder(visitor, parents));
+      parents.pop();
     }
   }
 
   public void visitPostOrder(BomHierarchyVisitor visitor) {
-    this.visitPostOrder(visitor, 0);
+    this.visitPostOrder(visitor, new Stack<>());
   }
 
-  private void visitPostOrder(BomHierarchyVisitor visitor, int level) {
+  private void visitPostOrder(BomHierarchyVisitor visitor, Stack<BomHierarchyData> parents) {
     if (materials != null) {
-      materials.forEach(material -> material.visitPostOrder(visitor, level + 1));
+      parents.push(this);
+      materials.forEach(material -> material.visitPostOrder(visitor, parents));
+      parents.pop();
     }
-    visitor.visit(this, level);
+    visitor.visit(this, parents);
   }
 
   public interface BomHierarchyVisitor {
 
-    void visit(BomHierarchyData data, int level);
+    void visit(BomHierarchyData data, Stack<BomHierarchyData> parents);
   }
 
   @JsonPOJOBuilder(withPrefix = "")
