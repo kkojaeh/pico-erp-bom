@@ -139,6 +139,11 @@ public class BomServiceLogic implements BomService {
     return getHierarchy(get(id));
   }
 
+  @Override
+  public BomHierarchyData getHierarchy(ItemId id) {
+    return getHierarchy(get(id));
+  }
+
   private BomHierarchyData getHierarchy(BomData bom) {
     val materials = bomMaterialRepository.findAllIncludedMaterialBy(bom.getId())
       .map(materialMapper::map)

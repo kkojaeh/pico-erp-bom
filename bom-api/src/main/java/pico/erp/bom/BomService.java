@@ -28,6 +28,8 @@ public interface BomService {
 
   BomHierarchyData getHierarchy(@NotNull BomId id);
 
+  BomHierarchyData getHierarchy(@NotNull ItemId id);
+
   void update(@Valid UpdateRequest request);
 
 }
