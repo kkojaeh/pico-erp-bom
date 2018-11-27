@@ -44,9 +44,9 @@ public class BomRepositoryJpa implements BomRepository {
 
   @Override
   public Bom create(Bom bom) {
-    val entity = mapper.entity(bom);
+    val entity = mapper.jpa(bom);
     val created = repository.save(entity);
-    return mapper.domain(created);
+    return mapper.jpa(created);
   }
 
   @Override
@@ -73,26 +73,26 @@ public class BomRepositoryJpa implements BomRepository {
   @Override
   public Stream<Bom> findAllBy(ProcessId id) {
     return repository.findAllBy(id)
-      .map(mapper::domain);
+      .map(mapper::jpa);
   }
 
   @Override
   public Stream<Bom> findAllBy(ItemId itemId) {
     return repository.findAllBy(itemId)
-      .map(mapper::domain);
+      .map(mapper::jpa);
   }
 
   @Override
   public Optional<Bom> findBy(BomId id) {
     return Optional.ofNullable(repository.findOne(id))
-      .map(mapper::domain);
+      .map(mapper::jpa);
   }
 
   @Override
   public Optional<Bom> findBy(ItemId id, int revision) {
     return Optional.ofNullable(
       repository.findBy(id, revision)
-    ).map(mapper::domain);
+    ).map(mapper::jpa);
   }
 
   @Override
@@ -103,13 +103,13 @@ public class BomRepositoryJpa implements BomRepository {
     }
     return Optional.ofNullable(
       repository.findBy(itemId, lastRevision)
-    ).map(mapper::domain);
+    ).map(mapper::jpa);
   }
 
   @Override
   public void update(Bom bom) {
     val entity = repository.findOne(bom.getId());
-    mapper.pass(mapper.entity(bom), entity);
+    mapper.pass(mapper.jpa(bom), entity);
     repository.save(entity);
   }
 

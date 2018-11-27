@@ -38,6 +38,7 @@ public class BomHierarchyData extends BomData {
       bom.getItemSpecId(), bom.isSpecifiable(), bom.isMaterial(),
       bom.isModifiable(), bom.getParent(), bom.isStable());
     this.materials = materials;
+    this.materials.forEach(m -> m.setParent(this));
   }
 
   @Builder
@@ -52,6 +53,7 @@ public class BomHierarchyData extends BomData {
       estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost, itemSpecId, specifiable, material,
       modifiable, parent, stable);
     this.materials = materials;
+    this.materials.forEach(m -> m.setParent(this));
   }
 
   public void visitInOrder(BomHierarchyVisitor visitor) {

@@ -46,9 +46,9 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
 
   @Override
   public BomMaterial create(BomMaterial material) {
-    val entity = mapper.entity(material);
+    val entity = mapper.jpa(material);
     val created = repository.save(entity);
-    return mapper.domain(created);
+    return mapper.jpa(created);
   }
 
   @Override
@@ -74,7 +74,7 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   @Override
   public Stream<Bom> findAllAscendBy(BomId materialId) {
     val references = repository.findAllIncludeMaterialBomBy(materialId)
-      .map(bomMapper::domain)
+      .map(bomMapper::jpa)
       .collect(Collectors.toList());
     references.addAll(
       references.stream().flatMap(bom -> this.findAllIncludeMaterialBomBy(bom.getId()))
@@ -86,31 +86,31 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   @Override
   public Stream<Bom> findAllIncludeMaterialBomBy(BomId materialId) {
     return repository.findAllIncludeMaterialBomBy(materialId)
-      .map(bomMapper::domain);
+      .map(bomMapper::jpa);
   }
 
   @Override
   public Stream<BomMaterial> findAllIncludedMaterialBy(BomId id) {
     return repository.findAllIncludedMaterialBy(id)
-      .map(mapper::domain);
+      .map(mapper::jpa);
   }
 
   @Override
   public Optional<BomMaterial> findBy(BomId bomId, BomId materialId) {
     return Optional.ofNullable(repository.findOne(BomMaterialKey.from(bomId, materialId)))
-      .map(mapper::domain);
+      .map(mapper::jpa);
   }
 
   @Override
   public Optional<BomMaterial> findBy(ItemSpecId itemSpecId) {
     return Optional.ofNullable(repository.findBy(itemSpecId))
-      .map(mapper::domain);
+      .map(mapper::jpa);
   }
 
   @Override
   public void update(BomMaterial material) {
     val entity = repository.findOne(BomMaterialKey.from(material));
-    mapper.pass(mapper.entity(material), entity);
+    mapper.pass(mapper.jpa(material), entity);
     repository.save(entity);
   }
 }

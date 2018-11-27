@@ -82,7 +82,7 @@ public abstract class BomMapper {
       .orElse(null);
   }
 
-  public Bom domain(BomEntity entity) {
+  public Bom jpa(BomEntity entity) {
     Bom bom = Bom.builder()
       .id(entity.getId())
       .item(itemService.get(entity.getItemId()))
@@ -111,7 +111,7 @@ public abstract class BomMapper {
     @Mapping(target = "lastModifiedBy", ignore = true),
     @Mapping(target = "lastModifiedDate", ignore = true)
   })
-  public abstract BomEntity entity(Bom bom);
+  public abstract BomEntity jpa(Bom bom);
 
   public Bom map(BomId bomId) {
     return Optional.ofNullable(bomId)

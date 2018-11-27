@@ -62,6 +62,7 @@ class BomServiceSpec extends Specification {
         id: ProcessId.from("process-1"),
         itemId: ItemId.from("ACE"),
         name: "품목 명과 공정명 합침",
+        lossRate: 0.01,
         typeId: ProcessTypeId.from("printing-offset"),
         adjustCost: 0,
         difficulty: ProcessDifficultyKind.NORMAL,
@@ -402,6 +403,15 @@ class BomServiceSpec extends Specification {
     })
     then:
     levels == [4, 3, 2, 1, 0]
+  }
+
+  def "BOM 여분율 계산"() {
+    when:
+    def hierarchy = bomService.getHierarchy(BomId.from("bom-1"))
+    def leaf = hierarchy.materials[0].materials[0].materials[0].materials[0]
+
+    then:
+    leaf.spareRatio == 0.01
   }
 
 }

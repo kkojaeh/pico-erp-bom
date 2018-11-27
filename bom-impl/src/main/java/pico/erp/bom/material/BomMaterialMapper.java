@@ -1,8 +1,6 @@
 package pico.erp.bom.material;
 
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -29,10 +27,7 @@ public abstract class BomMaterialMapper {
   @Autowired
   protected ItemSpecService itemSpecService;
 
-  @PersistenceContext
-  protected EntityManager entityManager;
-
-  public BomMaterial domain(BomMaterialEntity entity) {
+  public BomMaterial jpa(BomMaterialEntity entity) {
     return BomMaterial.builder()
       .bom(map(entity.getKey().getBomId()))
       .material(map(entity.getKey().getMaterialId()))
@@ -49,7 +44,7 @@ public abstract class BomMaterialMapper {
     @Mapping(target = "lastModifiedBy", ignore = true),
     @Mapping(target = "lastModifiedDate", ignore = true)
   })
-  public abstract BomMaterialEntity entity(BomMaterial material);
+  public abstract BomMaterialEntity jpa(BomMaterial material);
 
   @Mappings({
     @Mapping(target = "bom", source = "bomId"),

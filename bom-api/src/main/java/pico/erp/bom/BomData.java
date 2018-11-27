@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import pico.erp.bom.unit.cost.BomUnitCostData;
@@ -18,6 +19,7 @@ import pico.erp.shared.data.Auditor;
 
 @Data
 @AllArgsConstructor
+@ToString(exclude = {"parent"})
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EqualsAndHashCode(of = "id")
