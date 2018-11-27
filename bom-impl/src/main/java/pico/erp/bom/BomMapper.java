@@ -142,7 +142,6 @@ public abstract class BomMapper {
     @Mapping(target = "itemId", source = "item.id"),
     @Mapping(target = "processId", source = "process.id"),
     @Mapping(target = "quantity", expression = "java(BigDecimal.ONE)"),
-    @Mapping(target = "modifiable", expression = "java(bom.isModifiable())"),
     @Mapping(target = "itemSpecId", ignore = true),
     @Mapping(target = "parent", ignore = true),
   })

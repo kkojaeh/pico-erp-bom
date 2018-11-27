@@ -33,7 +33,7 @@ public class BomHierarchyData extends BomData {
 
   public BomHierarchyData(BomData bom, List<BomHierarchyData> materials) {
     super(bom.getId(), bom.getItemId(), bom.getRevision(), bom.getStatus(), bom.getProcessId(),
-      bom.getDeterminedBy(), bom.getDeterminedDate(), bom.getQuantity(),
+      bom.getDeterminedBy(), bom.getDeterminedDate(), bom.getQuantity(), bom.getLossRate(),
       bom.getEstimatedIsolatedUnitCost(), bom.getEstimatedAccumulatedUnitCost(),
       bom.getItemSpecId(), bom.isSpecifiable(), bom.isMaterial(),
       bom.isModifiable(), bom.getParent(), bom.isStable());
@@ -41,14 +41,14 @@ public class BomHierarchyData extends BomData {
   }
 
   @Builder
-  public BomHierarchyData(BomId id, ItemId itemId, int revision,
-    BomStatusKind status, ProcessId processId,
-    Auditor determinedBy, OffsetDateTime determinedDate,
-    BigDecimal quantity, BomUnitCostData estimatedIsolatedUnitCost,
-    BomUnitCostData estimatedAccumulatedUnitCost, ItemSpecId itemSpecId,
-    boolean specifiable, boolean material, boolean modifiable,
-    BomData parent, List<BomHierarchyData> materials, boolean stable) {
-    super(id, itemId, revision, status, processId, determinedBy, determinedDate, quantity,
+  public BomHierarchyData(BomId id, ItemId itemId, int revision, BomStatusKind status,
+    ProcessId processId, Auditor determinedBy, OffsetDateTime determinedDate,
+    BigDecimal quantity, BigDecimal lossRate,
+    BomUnitCostData estimatedIsolatedUnitCost,
+    BomUnitCostData estimatedAccumulatedUnitCost, ItemSpecId itemSpecId, boolean specifiable,
+    boolean material, boolean modifiable, BomData parent, boolean stable,
+    List<BomHierarchyData> materials) {
+    super(id, itemId, revision, status, processId, determinedBy, determinedDate, quantity, lossRate,
       estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost, itemSpecId, specifiable, material,
       modifiable, parent, stable);
     this.materials = materials;

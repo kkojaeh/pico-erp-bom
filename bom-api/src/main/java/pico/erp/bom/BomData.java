@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 import pico.erp.bom.unit.cost.BomUnitCostData;
 import pico.erp.item.ItemId;
 import pico.erp.item.spec.ItemSpecId;
@@ -38,6 +39,8 @@ public class BomData {
 
   BigDecimal quantity;
 
+  BigDecimal lossRate;
+
   BomUnitCostData estimatedIsolatedUnitCost;
 
   BomUnitCostData estimatedAccumulatedUnitCost;
@@ -55,11 +58,20 @@ public class BomData {
 
   boolean stable;
 
-  public BigDecimal getQuantityPerRoot() {
+  public BigDecimal getQuantityRatio() {
     if (parent != null) {
-      return this.getQuantity().multiply(parent.getQuantityPerRoot());
+      return quantity.multiply(parent.getQuantityRatio());
     } else {
-      return this.getQuantity();
+      return quantity;
+    }
+  }
+
+  public BigDecimal getSpareRatio() {
+    if (parent != null) {
+      val one = BigDecimal.ONE;
+      return parent.getLossRate().add(one).multiply(parent.getSpareRatio().add(one)).subtract(one);
+    } else {
+      return BigDecimal.ZERO;
     }
   }
 

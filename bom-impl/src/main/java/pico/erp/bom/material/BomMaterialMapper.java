@@ -80,8 +80,9 @@ public abstract class BomMaterialMapper {
     @Mapping(target = "quantity", source = "quantity"),
     @Mapping(target = "specifiable", source = "material.specifiable"),
     @Mapping(target = "material", source = "material.material"),
-    @Mapping(target = "modifiable", expression = "java(material.getMaterial().isModifiable())"),
-    @Mapping(target = "stable", expression = "java(material.getMaterial().isStable())"),
+    @Mapping(target = "modifiable", source = "material.modifiable"),
+    @Mapping(target = "stable", source = "material.stable"),
+    @Mapping(target = "lossRate", source = "material.lossRate"),
     @Mapping(target = "itemSpecId", source = "itemSpec.id"),
     @Mapping(target = "parent", source = "bom"),
 

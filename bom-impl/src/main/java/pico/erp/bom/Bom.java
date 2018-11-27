@@ -1,6 +1,7 @@
 package pico.erp.bom;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -101,7 +102,6 @@ public class Bom implements Serializable {
   }
 
 
-
   public BomMessages.DeleteResponse apply(BomMessages.DeleteRequest request) {
     return new BomMessages.DeleteResponse(Collections.emptyList());
   }
@@ -188,6 +188,13 @@ public class Bom implements Serializable {
     return status == BomStatusKind.DETERMINED;
   }
 
+
+  public BigDecimal getLossRate() {
+    if (process != null) {
+      return process.getLossRate();
+    }
+    return BigDecimal.ZERO;
+  }
 
 
   @Value
