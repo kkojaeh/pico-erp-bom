@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import pico.erp.bom.Bom;
 import pico.erp.bom.Bom.BomCalculateContext;
-import pico.erp.bom.BomExceptions;
+import pico.erp.bom.BomExceptions.CannotUpdateException;
 import pico.erp.bom.material.BomMaterialMessages.CreateRequest;
 import pico.erp.bom.material.BomMaterialMessages.CreateResponse;
 import pico.erp.bom.material.BomMaterialMessages.DeleteRequest;
@@ -50,8 +50,8 @@ public class BomMaterial implements Serializable {
   ItemSpecData itemSpec;
 
   public CreateResponse apply(CreateRequest request) {
-    if (!request.getBom().isModifiable()) {
-      throw new BomExceptions.CannotModifyException();
+    if (!request.getBom().isUpdatable()) {
+      throw new CannotUpdateException();
     }
     this.bom = request.getBom();
     this.material = request.getMaterial();
@@ -63,8 +63,8 @@ public class BomMaterial implements Serializable {
   }
 
   public UpdateResponse apply(UpdateRequest request) {
-    if (!bom.isModifiable()) {
-      throw new BomExceptions.CannotModifyException();
+    if (!bom.isUpdatable()) {
+      throw new CannotUpdateException();
     }
     this.quantity = request.getQuantity();
     this.itemSpec = request.getItemSpec();
@@ -74,8 +74,8 @@ public class BomMaterial implements Serializable {
   }
 
   public DeleteResponse apply(DeleteRequest request) {
-    if (!bom.isModifiable()) {
-      throw new BomExceptions.CannotModifyException();
+    if (!bom.isUpdatable()) {
+      throw new CannotUpdateException();
     }
     return new DeleteResponse(
       Arrays.asList(new BomMaterialEvents.DeletedEvent(bom.getId(), material.getId()))

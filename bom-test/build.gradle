@@ -9,11 +9,20 @@ dependencies {
 
   compile project(':bom-impl')
 
+  testCompileOnly("com.github.kkojaeh.pico-erp-item:item-api:${itemVersion}")
+
+  testCompileOnly("com.github.kkojaeh.pico-erp-process:process-api:${processVersion}")
+
   testRuntimeOnly("com.github.kkojaeh.pico-erp-audit:audit-test:${auditVersion}")
 
-  testRuntimeOnly("com.github.kkojaeh.pico-erp-item:item-test:${itemVersion}")
+  testRuntimeOnly("com.github.kkojaeh.pico-erp-item:item-test:${itemVersion}"){
+    exclude group: 'com.github.kkojaeh.pico-erp-company'
+  }
 
-  testRuntimeOnly("com.github.kkojaeh.pico-erp-process:process-test:${processVersion}")
+  testRuntimeOnly("com.github.kkojaeh.pico-erp-process:process-test:${processVersion}"){
+    exclude group: 'com.github.kkojaeh.pico-erp-item'
+    exclude group: 'com.github.kkojaeh.pico-erp-company'
+  }
 
   testRuntimeOnly("com.github.kkojaeh.pico-erp-company:company-test:${companyVersion}")
 

@@ -9,9 +9,9 @@ dependencies {
 
   compile("com.github.kkojaeh.pico-erp-shared:shared-api:${sharedVersion}")
 
-  compile("com.github.kkojaeh.pico-erp-item:item-api:${itemVersion}")
+  compileOnly("com.github.kkojaeh.pico-erp-item:item-api:${itemVersion}")
 
-  compile("com.github.kkojaeh.pico-erp-process:process-api:${processVersion}")
+  compileOnly("com.github.kkojaeh.pico-erp-process:process-api:${processVersion}")
 
   compileOnly('com.fasterxml.jackson.core:jackson-databind:2.8.10')
 

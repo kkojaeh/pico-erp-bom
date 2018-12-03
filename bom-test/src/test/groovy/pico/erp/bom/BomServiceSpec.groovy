@@ -49,21 +49,32 @@ class BomServiceSpec extends Specification {
   @Autowired
   ProcessService processService
 
-  BomData bom
+  def itemCategoryId = ItemCategoryId.from("category-1")
 
-  BomData bom2
+  def customerId = CompanyId.from("CUST1")
+
+  def itemId1 = ItemId.from("ACE")
+
+  def itemId2 = ItemId.from("ACE-2")
+
+  def unknownBomId = BomId.from("unknown")
+
+  def bomId1 = BomId.from("ACE")
+
+  def bomId2 = BomId.from("ACE-2")
+
+  def processId = ProcessId.from("process-1")
 
   def setup() {
 
-    itemService.create(new ItemRequests.CreateRequest(id: ItemId.from("ACE"), name: "테스트", categoryId: ItemCategoryId.from("category-1"), customerId: CompanyId.from("CUST1"), unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 0))
-    itemService.create(new ItemRequests.CreateRequest(id: ItemId.from("ACE-2"), name: "테스트 2", categoryId: ItemCategoryId.from("category-1"), customerId: CompanyId.from("CUST1"), unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 300))
+    itemService.create(new ItemRequests.CreateRequest(id: itemId1, name: "테스트", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 0))
+    itemService.create(new ItemRequests.CreateRequest(id: itemId2, name: "테스트 2", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 300))
     processService.create(
       new ProcessRequests.CreateRequest(
-        id: ProcessId.from("process-1"),
-        itemId: ItemId.from("ACE"),
-        name: "품목 명과 공정명 합침",
+        id: processId,
+        itemId: itemId1,
         lossRate: 0.01,
-        typeId: ProcessTypeId.from("printing-offset"),
+        typeId: ProcessTypeId.from("PO"),
         adjustCost: 0,
         difficulty: ProcessDifficultyKind.NORMAL,
         description: "좋은 보통 작업"
@@ -71,122 +82,154 @@ class BomServiceSpec extends Specification {
     )
 
 
-    bom = bomService.draft(new BomRequests.DraftRequest(
-      id: BomId.from("ACE"),
-      itemId: ItemId.from("ACE")))
-    bom2 = bomService.draft(new BomRequests.DraftRequest(
-      id: BomId.from("ACE-2"),
-      itemId: ItemId.from("ACE-2")))
+    bomService.draft(new BomRequests.DraftRequest(
+      id: bomId1,
+      itemId: itemId1))
+    bomService.draft(new BomRequests.DraftRequest(
+      id: bomId2,
+      itemId: itemId2))
   }
 
-  def "아이디로 존재하는 BOM 확인"() {
+  def addMaterial() {
+    bomMaterialService.create(
+      new BomMaterialRequests.CreateRequest(
+        bomId: bomId1,
+        materialId: bomId2,
+        quantity: 2
+      )
+    )
+  }
+
+  def updateMaterial() {
+    bomMaterialService.update(
+      new BomMaterialRequests.UpdateRequest(
+        bomId: bomId1,
+        materialId: bomId2,
+        quantity: 1
+      )
+    )
+  }
+
+  def removeMaterial() {
+    bomMaterialService.delete(
+      new BomMaterialRequests.DeleteRequest(
+        bomId: bomId1,
+        materialId: bomId2
+      )
+    )
+  }
+
+  def determine1() {
+    bomService.determine(
+      new BomRequests.DetermineRequest(id: bomId1)
+    )
+  }
+
+  def determine2() {
+    bomService.determine(
+      new BomRequests.DetermineRequest(id: bomId2)
+    )
+  }
+
+  def update1() {
+    bomService.update(
+      new BomRequests.UpdateRequest(
+        id: bomId1,
+        processId: processId
+      )
+    )
+  }
+
+  def nextDraft() {
+    return bomService.draft(new BomRequests.DraftRequest(
+      id: BomId.from("ACE-3"),
+      itemId: itemId1
+    ))
+  }
+
+  def updateItem() {
+    itemService.update(
+      new ItemRequests.UpdateRequest(
+        id: itemId2,
+        name: "테스트 2",
+        categoryId: itemCategoryId,
+        customerId: customerId,
+        unit: UnitKind.EA,
+        type: ItemTypeKind.MATERIAL,
+        baseUnitCost: 350
+      )
+    )
+  }
+
+  def "존재 - 아이디로 확인"() {
     when:
-    def exists = bomService.exists(bom.id)
+    def exists = bomService.exists(bomId1)
 
     then:
     exists == true
   }
 
-  def "아이디로 존재하지 않는 BOM 확인"() {
+  def "존재 - 존재하지 않는 아이디로 확인"() {
     when:
-    def exists = bomService.exists(BomId.from("!ACE"))
+    def exists = bomService.exists(unknownBomId)
 
     then:
     exists == false
   }
 
-  def "아이디로 존재하는 BOM를 조회"() {
+  def "조회 - 아이디로 조회"() {
     when:
-    def bom = bomService.get(bom.id)
+    def bom = bomService.get(bomId1)
 
     then:
-    // bom.id.itemId.value == "ACE" // mock 으로 인해 동일하지 않음
+    bom.id == bomId1
     bom.revision == 1
+    bom.itemId == itemId1
   }
 
-  def "아이디로 존재하지 않는 BOM를 조회"() {
+  def "조회 - 존재하지 않는 아이디로 조회"() {
     when:
-    bomService.get(BomId.from("!ACE"))
+    bomService.get(unknownBomId)
 
     then:
     thrown(BomExceptions.NotFoundException)
   }
 
-  def "BOM 동일 부품을 추가하면 에러가 발생 한다"() {
+  def "자재 추가 - 중복 자재 추가"() {
     when:
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
+    addMaterial()
+    addMaterial()
+
     then:
     thrown(BomExceptions.MaterialAlreadyExistsException)
   }
 
-  def "BOM 부품을 수정하고 확인 한다"() {
+  def "자재 수정 - 수정"() {
     when:
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomMaterialService.update(
-      new BomMaterialRequests.UpdateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 1
-      )
-    )
-    def bom = bomService.get(bom.id)
+    addMaterial()
+    updateMaterial()
 
+    def material = bomMaterialService.get(bomId1, bomId2)
     then:
-    bomMaterialService.get(bom.id, bom2.id).quantity == 1
+    material.quantity == 1
   }
 
-  def "BOM 부품을 삭제하고 확인 한다"() {
+  def "자재 삭제 - 삭제"() {
     when:
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomMaterialService.delete(
-      new BomMaterialRequests.DeleteRequest(
-        bomId: bom.id,
-        materialId: bom2.id
-      )
-    )
+    addMaterial()
+    removeMaterial()
 
     then:
-    bomMaterialService.getAll(bom.id).size() == 0
+    bomMaterialService.getAll(bomId1).size() == 0
   }
 
-  def "BOM 을 확정한다"() {
+  def "확정 - 확정"() {
     when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom2.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
+    determine2()
+    addMaterial()
+    determine1()
 
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    def bom = bomService.get(bom.id)
+    def bom = bomService.get(bomId1)
 
     then:
 
@@ -194,186 +237,90 @@ class BomServiceSpec extends Specification {
     bom.determinedDate != null
   }
 
-  def "BOM 을 확정 후 변경하면 에러 발생"() {
+  def "수정 - 확정 후 수정"() {
     when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom2.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    bomService.update(
-      new BomRequests.UpdateRequest(
-        id: bom.id,
-        processId: ProcessId.from("process-1")
-      )
-    )
+    determine2()
+    addMaterial()
+    determine1()
+    update1()
 
     then:
-    thrown(BomExceptions.CannotModifyException)
+    thrown(BomExceptions.CannotUpdateException)
   }
 
-  def "BOM 을 확정 후 자재를 추가하면 에러 발생"() {
+  def "자재 추가 - 확정 후 추가"() {
     when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
+    determine1()
+    addMaterial()
 
     then:
-    thrown(BomExceptions.CannotModifyException)
+    thrown(BomExceptions.CannotUpdateException)
   }
 
-  def "BOM 을 확정 후 자재를 수정하면 에러 발생"() {
+  def "자재 수정 - 확정 후 자재 수정"() {
     when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom2.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    bomMaterialService.update(
-      new BomMaterialRequests.UpdateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 1
-      )
-    )
+    determine2()
+    addMaterial()
+    determine1()
+    updateMaterial()
 
     then:
-    thrown(BomExceptions.CannotModifyException)
+    thrown(BomExceptions.CannotUpdateException)
   }
 
-  def "BOM 을 확정 후 자재를 삭제하면 에러 발생"() {
+  def "자재 삭제 - 확정 후 자재 삭제"() {
     when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom2.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    bomMaterialService.delete(
-      new BomMaterialRequests.DeleteRequest(
-        bomId: bom.id,
-        materialId: bom2.id
-      )
-    )
+    determine2()
+    addMaterial()
+    determine1()
+    removeMaterial()
 
     then:
-    thrown(BomExceptions.CannotModifyException)
+    thrown(BomExceptions.CannotUpdateException)
   }
 
-  def "BOM 을 확정 후 새 버전 생성"() {
+  def "새버전 - 확정 후 새 버전"() {
     when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom2.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    def nextDraft = bomService.draft(new BomRequests.DraftRequest(
-      id: BomId.from("ACE2"),
-      itemId: ItemId.from("ACE")
-    ))
-    def previousBom = bomService.get(bom.id)
+    determine2()
+    addMaterial()
+    determine1()
+    def nextDraft = nextDraft()
+    def previousBom = bomService.get(bomId1)
 
     then:
     nextDraft.revision == 2
     previousBom.status == BomStatusKind.EXPIRED
   }
 
-  def "BOM 을 확정 전 새 버전을 생성하면 에러 발생"() {
+  def "새버전 - 확정 전 새 버전"() {
     when:
-    bomService.draft(new BomRequests.DraftRequest(
-      id: BomId.from("ACE2"),
-      itemId: ItemId.from("ACE-2")
-    ))
+    nextDraft()
 
     then:
     thrown(BomExceptions.AlreadyDraftStatusException)
   }
 
-  def "새 버전 확정후 이전 버전의 만료 확인"() {
-    when:
-    bomService.determine(new BomRequests.DetermineRequest(id: bom2.id))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    bomService.determine(new BomRequests.DetermineRequest(id: bom.id))
-    def nextDrafted = bomService.draft(new BomRequests.DraftRequest(
-      id: BomId.from("ACE2"),
-      itemId: ItemId.from("ACE")
-    ))
-    bomService.determine(new BomRequests.DetermineRequest(id: nextDrafted.id))
-    def bom = bomService.get(bom.id)
 
-    then:
-    bom.status == BomStatusKind.EXPIRED
-  }
-
-  def "BOM의 누적 단가를 계산"() {
+  def "누적단가 - 누적 단가 확인"() {
     when:
-    bomService.update(new BomRequests.UpdateRequest(id: bom.id, processId: ProcessId.from("process-1")))
-    bomService.update(new BomRequests.UpdateRequest(id: bom2.id, processId: ProcessId.from("process-1")))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    def bom = bomService.get(bom.id)
+    bomService.update(new BomRequests.UpdateRequest(id: bomId1, processId: processId))
+    bomService.update(new BomRequests.UpdateRequest(id: bomId2, processId: processId))
+    addMaterial()
+    def bom = bomService.get(bomId1)
 
     then:
     bom.estimatedAccumulatedUnitCost.total == 900
     bom.estimatedAccumulatedUnitCost.directMaterial == 600
   }
 
-  def "자재되는 BOM의 가격이 변경되면 자재로 사용하는 BOM의 누적 단가가 변경된다"() {
+  def "누적단가 - 자재의 가격 변경 영향"() {
     when:
-    bomService.update(new BomRequests.UpdateRequest(id: bom.id, processId: ProcessId.from("process-1")))
-    bomService.update(new BomRequests.UpdateRequest(id: bom2.id, processId: ProcessId.from("process-1")))
-    bomMaterialService.create(
-      new BomMaterialRequests.CreateRequest(
-        bomId: bom.id,
-        materialId: bom2.id,
-        quantity: 2
-      )
-    )
-    itemService.update(
-      new ItemRequests.UpdateRequest(
-        id: ItemId.from("ACE-2"),
-        name: "테스트 2",
-        categoryId: ItemCategoryId.from("category-1"),
-        customerId: CompanyId.from("CUST1"),
-        unit: UnitKind.EA,
-        type: ItemTypeKind.MATERIAL,
-        baseUnitCost: 350
-      )
-    )
+    bomService.update(new BomRequests.UpdateRequest(id: bomId1, processId: processId))
+    bomService.update(new BomRequests.UpdateRequest(id: bomId2, processId: processId))
+    addMaterial()
+    updateItem()
 
-    def bom = bomService.get(bom.id)
+    def bom = bomService.get(bomId1)
 
     then:
     bom.estimatedAccumulatedUnitCost.total == 1000

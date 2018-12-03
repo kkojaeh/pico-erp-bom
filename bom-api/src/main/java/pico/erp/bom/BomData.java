@@ -53,7 +53,7 @@ public class BomData {
 
   boolean material;
 
-  boolean modifiable;
+  boolean updatable;
 
   @JsonIgnore
   BomData parent;

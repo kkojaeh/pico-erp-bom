@@ -2,6 +2,10 @@ package pico.erp.bom;
 
 import java.util.LinkedList;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,8 @@ import pico.erp.bom.material.BomMaterialMapper;
 import pico.erp.bom.material.BomMaterialMessages;
 import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.ItemId;
+import pico.erp.item.spec.ItemSpecId;
+import pico.erp.process.ProcessId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
@@ -62,45 +68,27 @@ public class BomServiceLogic implements BomService {
     eventPublisher.publishEvents(response.getEvents());
   }
 
-  @Override
-  public BomData draft(DraftRequest request) {
-    val bom = new Bom();
-    val response = bom.apply(mapper.map(request));
-    val created = bomRepository.create(bom);
-    val previous = response.getPrevious();
-    val events = new LinkedList<Event>();
-    events.addAll(response.getEvents());
-    if (previous != null) {
-      bomRepository.update(previous);
-      // 새로 생성된 BOM 에 기존 BOM 의 자재를 동일하게 생성
-      bomMaterialRepository.findAllIncludedMaterialBy(previous.getId())
-        .forEach(material -> {
-          val nextRevisionResponse = material.apply(new BomMaterialMessages.NextRevisionRequest(
-            created,
-            bomRepository.findWithLastRevision(material.getMaterial().getItem().getId()).get()
-          ));
-          val draftedMaterial = nextRevisionResponse.getDrafted();
-          bomMaterialRepository.create(draftedMaterial);
-          events.addAll(nextRevisionResponse.getEvents());
-
-        });
-      // 새로 생성된 BOM 을 참조하고 있는 BOM 의 새버전을 생성하거나 해당 자재만 교체
-      bomMaterialRepository.findAllIncludeMaterialBomBy(previous.getId())
-        .forEach(referenced -> {
-          if (referenced.isDetermined()) {
-            this.draft(new DraftRequest(BomId.generate(), referenced.getItem().getId()));
+  public void deleteProcess(DeleteProcessRequest request) {
+    bomRepository.findAllBy(request.getProcessId())
+      .forEach(bom -> {
+        if (!bom.isExpired()) {
+          if (bom.isUpdatable()) {
+            val updateRequest = new BomRequests.UpdateRequest(mapper.map(bom));
+            updateRequest.setProcessId(null);
+            update(updateRequest);
           } else {
-            val oldMaterial = bomMaterialRepository.findBy(referenced.getId(), previous.getId())
-              .get();
-            val swapResponse = oldMaterial.apply(new BomMaterialMessages.SwapRequest(created));
-            bomMaterialRepository.create(swapResponse.getSwapped());
-            bomMaterialRepository.deleteBy(oldMaterial);
-            events.addAll(swapResponse.getEvents());
+            val drafted = draft(
+              BomRequests.DraftRequest.builder()
+                .id(BomId.generate())
+                .itemId(bom.getItem().getId())
+                .build()
+            );
+            val updateRequest = new BomRequests.UpdateRequest(drafted);
+            updateRequest.setProcessId(null);
+            update(updateRequest);
           }
-        });
-    }
-    eventPublisher.publishEvents(events);
-    return mapper.map(created);
+        }
+      });
   }
 
   @Override
@@ -160,6 +148,161 @@ public class BomServiceLogic implements BomService {
     val response = bom.apply(mapper.map(request));
     bomRepository.update(bom);
     eventPublisher.publishEvents(response.getEvents());
+  }
+
+  @Override
+  public BomData draft(DraftRequest request) {
+    if (bomRepository.exists(request.getId())) {
+      throw new BomExceptions.AlreadyExistsException();
+    }
+    val bom = new Bom();
+    val response = bom.apply(mapper.map(request));
+    val created = bomRepository.create(bom);
+    val previous = response.getPrevious();
+    val events = new LinkedList<Event>();
+    events.addAll(response.getEvents());
+    if (previous != null) {
+      bomRepository.update(previous);
+      // 새로 생성된 BOM 에 기존 BOM 의 자재를 동일하게 생성
+      bomMaterialRepository.findAllIncludedMaterialBy(previous.getId())
+        .forEach(material -> {
+          val nextRevisionResponse = material.apply(new BomMaterialMessages.NextRevisionRequest(
+            created,
+            bomRepository.findWithLastRevision(material.getMaterial().getItem().getId()).get()
+          ));
+          val draftedMaterial = nextRevisionResponse.getDrafted();
+          bomMaterialRepository.create(draftedMaterial);
+          events.addAll(nextRevisionResponse.getEvents());
+
+        });
+      // 새로 생성된 BOM 을 참조하고 있는 BOM 의 새버전을 생성하거나 해당 자재만 교체
+      bomMaterialRepository.findAllIncludeMaterialBomBy(previous.getId())
+        .forEach(referenced -> {
+          if (referenced.isDetermined()) {
+            this.draft(new DraftRequest(BomId.generate(), referenced.getItem().getId()));
+          } else {
+            val oldMaterial = bomMaterialRepository.findBy(referenced.getId(), previous.getId())
+              .get();
+            val swapResponse = oldMaterial.apply(new BomMaterialMessages.SwapRequest(created));
+            bomMaterialRepository.create(swapResponse.getSwapped());
+            bomMaterialRepository.deleteBy(oldMaterial);
+            events.addAll(swapResponse.getEvents());
+          }
+        });
+    }
+    eventPublisher.publishEvents(events);
+    return mapper.map(created);
+  }
+
+  public void verify(VerifyRequest request) {
+    val bom = bomRepository.findBy(request.getId())
+      .orElseThrow(NotFoundException::new);
+    if (!bom.isExpired()) {
+      val aggregator = bomRepository.findAggregatorBy(bom.getId()).get();
+      val response = aggregator.apply(new BomMessages.VerifyRequest());
+      bomRepository.update(aggregator);
+      eventPublisher.publishEvents(response.getEvents());
+    }
+  }
+
+  public void verify(VerifyByProcessRequest request) {
+    bomRepository.findAllBy(request.getProcessId())
+      .map(bom ->
+        VerifyRequest.builder()
+          .id(bom.getId())
+          .build()
+      )
+      .forEach(this::verify);
+  }
+
+  public void verify(VerifyByItemSpecRequest request) {
+    bomMaterialRepository.findBy(request.getItemSpecId())
+      .map(material ->
+        VerifyRequest.builder()
+          .id(material.getBom().getId())
+          .build()
+      )
+      .ifPresent(this::verify);
+  }
+
+  public void verify(VerifyByItemRequest request) {
+    bomRepository.findAllBy(request.getItemId())
+      .map(bom ->
+        VerifyRequest.builder()
+          .id(bom.getId())
+          .build()
+      )
+      .forEach(this::verify);
+  }
+
+  public void verify(VerifyByMaterialRequest request) {
+    bomMaterialRepository.findAllIncludeMaterialBomBy(request.getMaterialId())
+      .map(bom ->
+        VerifyRequest.builder()
+          .id(bom.getId())
+          .build()
+      )
+      .forEach(this::verify);
+  }
+
+  @Getter
+  @Builder
+  public static class DeleteProcessRequest {
+
+    @Valid
+    @NotNull
+    ProcessId processId;
+
+  }
+
+  @Getter
+  @Builder
+  public static class VerifyByProcessRequest {
+
+    @Valid
+    @NotNull
+    ProcessId processId;
+
+  }
+
+  @Getter
+  @Builder
+  public static class VerifyByItemSpecRequest {
+
+    @Valid
+    @NotNull
+    ItemSpecId itemSpecId;
+
+  }
+
+  @Getter
+  @Builder
+  public static class VerifyByItemRequest {
+
+    @Valid
+    @NotNull
+    ItemId itemId;
+
+  }
+
+  @Getter
+  @Builder
+  public static class VerifyByMaterialRequest {
+
+    @Valid
+    @NotNull
+    BomId materialId;
+
+  }
+
+  @Getter
+  @Builder
+  public static class VerifyRequest {
+
+    @Valid
+    @NotNull
+    BomId id;
+
   }
 
 }

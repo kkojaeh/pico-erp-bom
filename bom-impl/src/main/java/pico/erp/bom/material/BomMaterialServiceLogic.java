@@ -96,4 +96,5 @@ public class BomMaterialServiceLogic implements BomMaterialService {
     bomMaterialRepository.update(material);
     eventPublisher.publishEvents(response.getEvents());
   }
+
 }

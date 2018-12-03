@@ -75,7 +75,7 @@ public abstract class BomMaterialMapper {
     @Mapping(target = "quantity", source = "quantity"),
     @Mapping(target = "specifiable", source = "material.specifiable"),
     @Mapping(target = "material", source = "material.material"),
-    @Mapping(target = "modifiable", source = "material.modifiable"),
+    @Mapping(target = "updatable", source = "material.updatable"),
     @Mapping(target = "stable", source = "material.stable"),
     @Mapping(target = "lossRate", source = "material.lossRate"),
     @Mapping(target = "itemSpecId", source = "itemSpec.id"),

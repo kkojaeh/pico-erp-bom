@@ -8,15 +8,13 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
-import pico.erp.bom.BomRequests.DraftRequest;
 import pico.erp.bom.material.BomMaterialEvents;
-import pico.erp.bom.material.BomMaterialRepository;
+import pico.erp.bom.material.BomMaterialService;
 import pico.erp.item.ItemEvents;
 import pico.erp.item.spec.ItemSpecEvents;
 import pico.erp.item.spec.ItemSpecRequests;
 import pico.erp.item.spec.ItemSpecService;
 import pico.erp.process.ProcessEvents;
-import pico.erp.shared.event.EventPublisher;
 
 @SuppressWarnings("unused")
 @Component
@@ -25,26 +23,36 @@ public class BomEventListener {
 
   private static final String LISTENER_NAME = "listener.bom-event-listener";
 
-  @Autowired
-  private BomRepository bomRepository;
-
-  @Autowired
-  private BomMaterialRepository bomMaterialRepository;
-
-  @Autowired
-  private EventPublisher eventPublisher;
-
-  @Autowired
-  private BomMapper bomMapper;
-
   @Lazy
   @Autowired
   private ItemSpecService itemSpecService;
 
+  @Lazy
+  @Autowired
+  private BomMaterialService bomMaterialService;
+
+  @Lazy
+  @Autowired
+  private BomServiceLogic bomService;
+
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.CreatedEvent.CHANNEL)
   public void onBomCreated(BomEvents.CreatedEvent event) {
-    this.verifyBom(event.getBomId());
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeletedEvent.CHANNEL)
+  public void onBomDeleted(BomEvents.DeletedEvent event) {
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
   }
 
   /**
@@ -53,141 +61,133 @@ public class BomEventListener {
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeterminedEvent.CHANNEL)
   public void onBomDetermined(BomEvents.DeterminedEvent event) {
-    bomMaterialRepository.findAllIncludedMaterialBy(event.getBomId())
+    bomMaterialService.getAll(event.getBomId())
       .forEach(bomMaterial -> {
-        val itemSpec = bomMaterial.getItemSpec();
-        if (itemSpec != null && !itemSpec.isLocked()) {
-          itemSpecService.lock(
-            new ItemSpecRequests.LockRequest(itemSpec.getId())
-          );
-        }
-      });
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.CreatedEvent.CHANNEL)
-  public void onBomMaterialCreated(BomMaterialEvents.CreatedEvent event) {
-    this.verifyBom(event.getBomId());
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.UpdatedEvent.CHANNEL)
-  public void onBomMaterialUpdated(BomMaterialEvents.UpdatedEvent event) {
-    this.verifyBom(event.getBomId());
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + EstimatedUnitCostChangedEvent.CHANNEL)
-  public void onBomEstimatedUnitCostChanged(EstimatedUnitCostChangedEvent event) {
-    bomMaterialRepository.findAllIncludeMaterialBomBy(event.getBomId())
-      .forEach(this::verifyBom);
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.DeletedEvent.CHANNEL)
-  public void onBomMaterialUpdated(BomMaterialEvents.DeletedEvent event) {
-    this.verifyBom(event.getBomId());
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.DeletedEvent.CHANNEL)
-  public void onProcessDeleted(ProcessEvents.DeletedEvent event) {
-    bomRepository.findAllBy(event.getProcessId())
-      .forEach(bom -> {
-        if (!bom.isExpired()) {
-          if (bom.isModifiable()) {
-            val response = bom.apply(
-              BomMessages.UpdateRequest.builder()
-                .process(null)
-                .build()
+        val itemSpecId = bomMaterial.getItemSpecId();
+        if (itemSpecId != null) {
+          val itemSpec = itemSpecService.get(itemSpecId);
+          if (itemSpec != null && !itemSpec.isLocked()) {
+            itemSpecService.lock(
+              new ItemSpecRequests.LockRequest(itemSpec.getId())
             );
-            bomRepository.update(bom);
-            eventPublisher.publishEvents(response.getEvents());
-          } else {
-            val nextRevision = new Bom();
-            val response = nextRevision.apply(
-              bomMapper.map(
-                new DraftRequest(BomId.generate(), bom.getItem().getId())
-              )
-            );
-            bomRepository.create(nextRevision);
-            if (response.getPrevious() != null) {
-              bomRepository.update(response.getPrevious());
-            }
-            eventPublisher.publishEvents(response.getEvents());
           }
         }
       });
   }
 
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.UpdatedEvent.CHANNEL)
-  public void onBomUpdated(BomEvents.UpdatedEvent event) {
-    this.verifyBom(event.getBomId());
+  @JmsListener(destination = LISTENER_NAME + "." + EstimatedUnitCostChangedEvent.CHANNEL)
+  public void onBomEstimatedUnitCostChanged(EstimatedUnitCostChangedEvent event) {
+    bomService.verify(
+      BomServiceLogic.VerifyByMaterialRequest.builder()
+        .materialId(event.getBomId())
+        .build()
+    );
   }
 
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeletedEvent.CHANNEL)
-  public void onBomDeleted(BomEvents.DeletedEvent event) {
-    this.verifyBom(event.getBomId());
+  @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.CreatedEvent.CHANNEL)
+  public void onBomMaterialCreated(BomMaterialEvents.CreatedEvent event) {
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.UpdatedEvent.CHANNEL)
+  public void onBomMaterialUpdated(BomMaterialEvents.UpdatedEvent event) {
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.DeletedEvent.CHANNEL)
+  public void onBomMaterialUpdated(BomMaterialEvents.DeletedEvent event) {
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  /**
+   * BOM 이 새버전이되면 하위 BOM 과 연결된 품목 스펙을 잠금해제
+   */
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.NextRevisionCreatedEvent.CHANNEL)
+  public void onBomNextRevisionCreated(BomEvents.NextRevisionCreatedEvent event) {
+    bomMaterialService.getAll(event.getBomId())
+      .forEach(bomMaterial -> {
+        val itemSpecId = bomMaterial.getItemSpecId();
+        if (itemSpecId != null) {
+          val itemSpec = itemSpecService.get(itemSpecId);
+          if (itemSpec != null && itemSpec.isLocked()) {
+            itemSpecService.unlock(
+              new ItemSpecRequests.UnlockRequest(itemSpec.getId())
+            );
+          }
+        }
+      });
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.UpdatedEvent.CHANNEL)
+  public void onBomUpdated(BomEvents.UpdatedEvent event) {
+    bomService.verify(
+      BomServiceLogic.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
   }
 
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + ItemSpecEvents.UpdatedEvent.CHANNEL)
   public void onItemSpecUpdated(ItemSpecEvents.UpdatedEvent event) {
-    bomMaterialRepository.findBy(event.getItemSpecId())
-      .ifPresent(material -> this.verifyBom(material.getBom()));
+    bomService.verify(
+      BomServiceLogic.VerifyByItemSpecRequest.builder()
+        .itemSpecId(event.getItemSpecId())
+        .build()
+    );
   }
 
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + ItemEvents.UpdatedEvent.CHANNEL)
   public void onItemUpdated(ItemEvents.UpdatedEvent event) {
-    bomRepository.findAllBy(event.getItemId())
-      .forEach(this::verifyBom);
+    bomService.verify(
+      BomServiceLogic.VerifyByItemRequest.builder()
+        .itemId(event.getItemId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.DeletedEvent.CHANNEL)
+  public void onProcessDeleted(ProcessEvents.DeletedEvent event) {
+    bomService.deleteProcess(
+      BomServiceLogic.DeleteProcessRequest.builder()
+        .processId(event.getProcessId())
+        .build()
+    );
   }
 
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.EstimatedCostChangedEvent.CHANNEL)
   public void onProcessEstimatedCostChanged(ProcessEvents.EstimatedCostChangedEvent event) {
-    bomRepository.findAllBy(event.getProcessId())
-      .forEach(this::verifyBom);
-  }
-
-  protected void verifyBom(BomId bomId) {
-    this.verifyBom(
-      bomRepository.findBy(bomId)
-        .orElseThrow(BomExceptions.NotFoundException::new)
+    bomService.verify(
+      BomServiceLogic.VerifyByProcessRequest.builder()
+        .processId(event.getProcessId())
+        .build()
     );
-  }
-
-  protected void verifyBom(Bom bom) {
-    if (!bom.isExpired()) {
-      bomRepository.findAggregatorBy(bom.getId())
-        .ifPresent(aggregator -> {
-          val response = aggregator.apply(new BomMessages.VerifyRequest());
-          bomRepository.update(aggregator);
-          eventPublisher.publishEvents(response.getEvents());
-        });
-    }
-  }
-
-  /**
-   * BOM 이 새버전이되면 하위 BOM 과 연결된 품목 스펙을 잠금해제
-   * @param event
-   */
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomEvents.NextRevisionCreatedEvent.CHANNEL)
-  public void onBomNextRevisionCreated(BomEvents.NextRevisionCreatedEvent event) {
-    bomMaterialRepository.findAllIncludedMaterialBy(event.getBomId())
-      .forEach(bomMaterial -> {
-        val itemSpec = bomMaterial.getItemSpec();
-        if (itemSpec != null && itemSpec.isLocked()) {
-          itemSpecService.unlock(
-            new ItemSpecRequests.UnlockRequest(itemSpec.getId())
-          );
-        }
-      });
-    this.verifyBom(event.getBomId());
   }
 
 }

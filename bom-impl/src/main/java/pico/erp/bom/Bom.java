@@ -21,7 +21,7 @@ import lombok.val;
 import pico.erp.audit.annotation.Audit;
 import pico.erp.bom.BomEvents.NextRevisionCreatedEvent;
 import pico.erp.bom.BomExceptions.AlreadyDraftStatusException;
-import pico.erp.bom.BomExceptions.CannotModifyException;
+import pico.erp.bom.BomExceptions.CannotUpdateException;
 import pico.erp.bom.BomMessages.DraftResponse;
 import pico.erp.bom.BomMessages.NextRevisionRequest;
 import pico.erp.bom.unit.cost.BomUnitCost;
@@ -126,8 +126,8 @@ public class Bom implements Serializable {
   }
 
   public BomMessages.UpdateResponse apply(BomMessages.UpdateRequest request) {
-    if (!isModifiable()) {
-      throw new CannotModifyException();
+    if (!isUpdatable()) {
+      throw new CannotUpdateException();
     }
     process = request.getProcess();
     //val recalculateResponse = apply(new CalculateEstimatedUnitCostRequest());
@@ -136,7 +136,7 @@ public class Bom implements Serializable {
     );
   }
 
-  public boolean isModifiable() {
+  public boolean isUpdatable() {
     return status == BomStatusKind.DRAFT;
   }
 

@@ -33,6 +33,7 @@ public interface BomRequests {
 
   }
 
+  @Builder
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
@@ -53,6 +54,11 @@ public interface BomRequests {
   @AllArgsConstructor
   @Builder
   class UpdateRequest {
+
+    public UpdateRequest(BomData data) {
+      this.id = data.getId();
+      this.processId = data.getProcessId();
+    }
 
     @Valid
     @NotNull

@@ -20,25 +20,20 @@ import spock.lang.Specification
 class BomQuerySpec extends Specification {
 
   def setup() {
-    bomService.draft(new BomRequests.DraftRequest(itemId: ItemId.from("ACE")))
   }
 
   @Autowired
   BomQuery bomQuery
 
-  @Autowired
-  BomService bomService
 
-  /*
   def "BOM 조회 - 조회 조건에 맞게 조회"() {
     expect:
-    def page = bomQuery.retrieve(condition, pageable)
-    page.totalElements == totalElements
+    def list = bomQuery.findRevisions(ItemId.from("item-1"))
+    list.size() == totalElements
 
     where:
-    condition                               | pageable               || totalElements
-    new BomQueryCondition(itemName: "ACE")     | new PageRequest(0, 10) || 1
+    itemId                || totalElements
+    ItemId.from("item-1") || 1
   }
-  */
 
 }
