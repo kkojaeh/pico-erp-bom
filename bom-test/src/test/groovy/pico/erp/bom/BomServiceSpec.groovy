@@ -19,7 +19,7 @@ import pico.erp.item.category.ItemCategoryId
 import pico.erp.process.ProcessId
 import pico.erp.process.ProcessRequests
 import pico.erp.process.ProcessService
-import pico.erp.process.difficulty.grade.ProcessDifficultyKind
+import pico.erp.process.difficulty.ProcessDifficultyKind
 import pico.erp.process.type.ProcessTypeId
 import pico.erp.shared.IntegrationConfiguration
 import pico.erp.shared.data.UnitKind
