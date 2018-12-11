@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.Data;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -31,14 +30,17 @@ public class TestDataInitializer implements ApplicationInitializer {
   @Autowired
   private DataProperties dataProperties;
 
-  @SneakyThrows
   @Override
   public void initialize() {
     dataProperties.bomDrafts.forEach(bomService::draft);
     dataProperties.bomProcesses.forEach(bomService::update);
     dataProperties.bomMaterials.forEach(request -> {
       bomMaterialService.create(request);
-      TimeUnit.MILLISECONDS.sleep(500L);
+      try {
+        TimeUnit.MILLISECONDS.sleep(500L);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
     });
     dataProperties.bomDetermines.forEach(bomService::determine);
   }
