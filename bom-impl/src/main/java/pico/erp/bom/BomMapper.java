@@ -144,6 +144,7 @@ public abstract class BomMapper {
     @Mapping(target = "quantity", expression = "java(BigDecimal.ONE)"),
     @Mapping(target = "itemSpecId", ignore = true),
     @Mapping(target = "parent", ignore = true),
+    @Mapping(target = "order", expression = "java(0)")
   })
   public abstract BomData map(Bom bom);
 

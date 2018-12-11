@@ -11,6 +11,7 @@ import pico.erp.bom.BomData;
 import pico.erp.bom.BomExceptions;
 import pico.erp.bom.BomId;
 import pico.erp.bom.BomRepository;
+import pico.erp.bom.material.BomMaterialRequests.ChangeOrderRequest;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.EventPublisher;
 
@@ -90,6 +91,15 @@ public class BomMaterialServiceLogic implements BomMaterialService {
 
   @Override
   public void update(BomMaterialRequests.UpdateRequest request) {
+    val material = bomMaterialRepository.findBy(request.getBomId(), request.getMaterialId())
+      .orElseThrow(BomExceptions.MaterialNotFoundException::new);
+    val response = material.apply(mapper.map(request));
+    bomMaterialRepository.update(material);
+    eventPublisher.publishEvents(response.getEvents());
+  }
+
+  @Override
+  public void changeOrder(ChangeOrderRequest request) {
     val material = bomMaterialRepository.findBy(request.getBomId(), request.getMaterialId())
       .orElseThrow(BomExceptions.MaterialNotFoundException::new);
     val response = material.apply(mapper.map(request));

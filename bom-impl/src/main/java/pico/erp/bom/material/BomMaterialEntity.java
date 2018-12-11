@@ -130,5 +130,8 @@ public class BomMaterialEntity implements Serializable {
   @LastModifiedDate
   OffsetDateTime lastModifiedDate;
 
+  @Column(name = "DISPLAY_ORDER")
+  int order;
+
 }
 

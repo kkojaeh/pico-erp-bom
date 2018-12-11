@@ -36,6 +36,8 @@ public interface BomMaterialRepository {
    */
   Stream<BomMaterial> findAllIncludedMaterialBy(@NotNull BomId bomId);
 
+  long countIncludedMaterialBy(@NotNull BomId bomId);
+
   Optional<BomMaterial> findBy(@NotNull BomId bomId, @NotNull BomId materialId);
 
   Optional<BomMaterial> findBy(@NotNull ItemSpecId itemSpecId);

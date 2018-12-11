@@ -55,6 +55,8 @@ public class BomData {
 
   boolean updatable;
 
+  int order;
+
   @JsonIgnore
   BomData parent;
 

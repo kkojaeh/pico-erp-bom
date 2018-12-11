@@ -23,7 +23,10 @@ interface BomMaterialEntityRepository extends CrudRepository<BomMaterialEntity, 
   @Query("SELECT b FROM BomMaterial bm JOIN Bom b ON bm.key.bomId = b.id WHERE bm.key.materialId = :materialId")
   Stream<BomEntity> findAllIncludeMaterialBomBy(@Param("materialId") BomId materialId);
 
-  @Query("SELECT bm FROM BomMaterial bm WHERE bm.key.bomId = :bomId")
+  @Query("SELECT COUNT(bm) FROM BomMaterial bm WHERE bm.key.bomId = :bomId")
+  long countIncludedMaterialBy(@Param("bomId") BomId bomId);
+
+  @Query("SELECT bm FROM BomMaterial bm WHERE bm.key.bomId = :bomId ORDER BY bm.order")
   Stream<BomMaterialEntity> findAllIncludedMaterialBy(@Param("bomId") BomId bomId);
 
   @Query("SELECT bm FROM BomMaterial bm WHERE bm.itemSpecId = :itemSpecId")
@@ -93,6 +96,11 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   public Stream<BomMaterial> findAllIncludedMaterialBy(BomId id) {
     return repository.findAllIncludedMaterialBy(id)
       .map(mapper::jpa);
+  }
+
+  @Override
+  public long countIncludedMaterialBy(BomId bomId) {
+    return repository.countIncludedMaterialBy(bomId);
   }
 
   @Override

@@ -18,4 +18,6 @@ public interface BomMaterialService {
 
   void update(@Valid BomMaterialRequests.UpdateRequest request);
 
+  void changeOrder(@Valid BomMaterialRequests.ChangeOrderRequest request);
+
 }

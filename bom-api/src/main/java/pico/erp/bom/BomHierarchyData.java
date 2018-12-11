@@ -36,7 +36,7 @@ public class BomHierarchyData extends BomData {
       bom.getDeterminedBy(), bom.getDeterminedDate(), bom.getQuantity(), bom.getLossRate(),
       bom.getEstimatedIsolatedUnitCost(), bom.getEstimatedAccumulatedUnitCost(),
       bom.getItemSpecId(), bom.isSpecifiable(), bom.isMaterial(),
-      bom.isUpdatable(), bom.getParent(), bom.isStable());
+      bom.isUpdatable(), bom.getOrder(), bom.getParent(), bom.isStable());
     this.materials = materials;
     this.materials.forEach(m -> m.setParent(this));
   }
@@ -47,11 +47,11 @@ public class BomHierarchyData extends BomData {
     BigDecimal quantity, BigDecimal lossRate,
     BomUnitCostData estimatedIsolatedUnitCost,
     BomUnitCostData estimatedAccumulatedUnitCost, ItemSpecId itemSpecId, boolean specifiable,
-    boolean material, boolean updatable, BomData parent, boolean stable,
+    boolean material, boolean updatable, int order, BomData parent, boolean stable,
     List<BomHierarchyData> materials) {
     super(id, itemId, revision, status, processId, determinedBy, determinedDate, quantity, lossRate,
       estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost, itemSpecId, specifiable, material,
-      updatable, parent, stable);
+      updatable, order, parent, stable);
     this.materials = materials;
     this.materials.forEach(m -> m.setParent(this));
   }

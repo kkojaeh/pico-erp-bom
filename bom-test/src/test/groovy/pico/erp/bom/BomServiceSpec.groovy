@@ -57,11 +57,15 @@ class BomServiceSpec extends Specification {
 
   def itemId2 = ItemId.from("ACE-2")
 
+  def itemId3 = ItemId.from("ACE-3")
+
   def unknownBomId = BomId.from("unknown")
 
   def bomId1 = BomId.from("ACE")
 
   def bomId2 = BomId.from("ACE-2")
+
+  def bomId3 = BomId.from("ACE-3")
 
   def processId = ProcessId.from("process-1")
 
@@ -69,6 +73,7 @@ class BomServiceSpec extends Specification {
 
     itemService.create(new ItemRequests.CreateRequest(id: itemId1, name: "테스트", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 0))
     itemService.create(new ItemRequests.CreateRequest(id: itemId2, name: "테스트 2", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 300))
+    itemService.create(new ItemRequests.CreateRequest(id: itemId3, name: "테스트 3", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 300))
     processService.create(
       new ProcessRequests.CreateRequest(
         id: processId,
@@ -82,12 +87,24 @@ class BomServiceSpec extends Specification {
     )
 
 
-    bomService.draft(new BomRequests.DraftRequest(
-      id: bomId1,
-      itemId: itemId1))
-    bomService.draft(new BomRequests.DraftRequest(
-      id: bomId2,
-      itemId: itemId2))
+    bomService.draft(
+      new BomRequests.DraftRequest(
+        id: bomId1,
+        itemId: itemId1
+      )
+    )
+    bomService.draft(
+      new BomRequests.DraftRequest(
+        id: bomId2,
+        itemId: itemId2
+      )
+    )
+    bomService.draft(
+      new BomRequests.DraftRequest(
+        id: bomId3,
+        itemId: itemId3
+      )
+    )
   }
 
   def addMaterial() {
@@ -95,6 +112,16 @@ class BomServiceSpec extends Specification {
       new BomMaterialRequests.CreateRequest(
         bomId: bomId1,
         materialId: bomId2,
+        quantity: 2
+      )
+    )
+  }
+
+  def addMaterial2() {
+    bomMaterialService.create(
+      new BomMaterialRequests.CreateRequest(
+        bomId: bomId1,
+        materialId: bomId3,
         quantity: 2
       )
     )
@@ -141,10 +168,12 @@ class BomServiceSpec extends Specification {
   }
 
   def nextDraft() {
-    return bomService.draft(new BomRequests.DraftRequest(
-      id: BomId.from("ACE-3"),
-      itemId: itemId1
-    ))
+    return bomService.draft(
+      new BomRequests.DraftRequest(
+        id: BomId.from("ACE-NEXT"),
+        itemId: itemId1
+      )
+    )
   }
 
   def updateItem() {
@@ -211,6 +240,7 @@ class BomServiceSpec extends Specification {
 
     def material = bomMaterialService.get(bomId1, bomId2)
     then:
+    material.order == 0
     material.quantity == 1
   }
 
@@ -221,6 +251,66 @@ class BomServiceSpec extends Specification {
 
     then:
     bomMaterialService.getAll(bomId1).size() == 0
+  }
+
+  def "순서 - 추가한 순서 대로 증가함"() {
+    when:
+    addMaterial()
+    addMaterial2()
+
+    def material1 = bomMaterialService.get(bomId1, bomId2)
+    def material2 = bomMaterialService.get(bomId1, bomId3)
+    def materials = bomMaterialService.getAll(bomId1)
+    then:
+    material1.order == 0
+    material2.order == 1
+    materials[0].id == material1.id
+    materials[1].id == material2.id
+  }
+
+  def "순서 - 순서 변경"() {
+    when:
+    addMaterial()
+    addMaterial2()
+    bomMaterialService.changeOrder(
+      new BomMaterialRequests.ChangeOrderRequest(
+        bomId: bomId1,
+        materialId: bomId2,
+        order: 1
+      )
+    )
+    bomMaterialService.changeOrder(
+      new BomMaterialRequests.ChangeOrderRequest(
+        bomId: bomId1,
+        materialId: bomId3,
+        order: 0
+      )
+    )
+
+    def material1 = bomMaterialService.get(bomId1, bomId2)
+    def material2 = bomMaterialService.get(bomId1, bomId3)
+    def materials = bomMaterialService.getAll(bomId1)
+    then:
+    material1.order == 1
+    material2.order == 0
+    materials[0].id == material2.id
+    materials[1].id == material1.id
+  }
+
+  def "순서 - 동일 순서 변경"() {
+    when:
+    addMaterial()
+    addMaterial2()
+    bomMaterialService.changeOrder(
+      new BomMaterialRequests.ChangeOrderRequest(
+        bomId: bomId1,
+        materialId: bomId2,
+        order: 0
+      )
+    )
+
+    then:
+    thrown(BomExceptions.MaterialCannotChangeOrderException)
   }
 
   def "확정 - 확정"() {

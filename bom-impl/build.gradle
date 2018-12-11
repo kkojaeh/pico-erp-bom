@@ -12,8 +12,4 @@ dependencies {
 
   compile("com.github.kkojaeh.pico-erp-shared:shared-impl:${sharedVersion}")
 
-  compileOnly("com.github.kkojaeh.pico-erp-item:item-api:${itemVersion}")
-
-  compileOnly("com.github.kkojaeh.pico-erp-process:process-api:${processVersion}")
-
 }

@@ -15,17 +15,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import pico.erp.bom.Bom;
 import pico.erp.bom.Bom.BomCalculateContext;
+import pico.erp.bom.BomExceptions;
 import pico.erp.bom.BomExceptions.CannotUpdateException;
-import pico.erp.bom.material.BomMaterialMessages.CreateRequest;
-import pico.erp.bom.material.BomMaterialMessages.CreateResponse;
-import pico.erp.bom.material.BomMaterialMessages.DeleteRequest;
-import pico.erp.bom.material.BomMaterialMessages.DeleteResponse;
-import pico.erp.bom.material.BomMaterialMessages.NextRevisionRequest;
-import pico.erp.bom.material.BomMaterialMessages.NextRevisionResponse;
-import pico.erp.bom.material.BomMaterialMessages.SwapRequest;
-import pico.erp.bom.material.BomMaterialMessages.SwapResponse;
-import pico.erp.bom.material.BomMaterialMessages.UpdateRequest;
-import pico.erp.bom.material.BomMaterialMessages.UpdateResponse;
 import pico.erp.bom.unit.cost.BomUnitCost;
 import pico.erp.item.spec.ItemSpecData;
 
@@ -49,7 +40,9 @@ public class BomMaterial implements Serializable {
 
   ItemSpecData itemSpec;
 
-  public CreateResponse apply(CreateRequest request) {
+  int order;
+
+  public BomMaterialMessages.CreateResponse apply(BomMaterialMessages.CreateRequest request) {
     if (!request.getBom().isUpdatable()) {
       throw new CannotUpdateException();
     }
@@ -57,52 +50,64 @@ public class BomMaterial implements Serializable {
     this.material = request.getMaterial();
     this.quantity = request.getQuantity();
     this.itemSpec = request.getItemSpec();
-    return new CreateResponse(
+    this.order = request.getOrder();
+    return new BomMaterialMessages.CreateResponse(
       Arrays.asList(new BomMaterialEvents.CreatedEvent(bom.getId(), material.getId()))
     );
   }
 
-  public UpdateResponse apply(UpdateRequest request) {
+  public BomMaterialMessages.UpdateResponse apply(BomMaterialMessages.UpdateRequest request) {
     if (!bom.isUpdatable()) {
       throw new CannotUpdateException();
     }
     this.quantity = request.getQuantity();
     this.itemSpec = request.getItemSpec();
-    return new UpdateResponse(
+    return new BomMaterialMessages.UpdateResponse(
       Arrays.asList(new BomMaterialEvents.UpdatedEvent(bom.getId(), material.getId()))
     );
   }
 
-  public DeleteResponse apply(DeleteRequest request) {
+  public BomMaterialMessages.DeleteResponse apply(BomMaterialMessages.DeleteRequest request) {
     if (!bom.isUpdatable()) {
       throw new CannotUpdateException();
     }
-    return new DeleteResponse(
+    return new BomMaterialMessages.DeleteResponse(
       Arrays.asList(new BomMaterialEvents.DeletedEvent(bom.getId(), material.getId()))
     );
   }
 
-  public NextRevisionResponse apply(
-    NextRevisionRequest request) {
+  public BomMaterialMessages.NextRevisionResponse apply(
+    BomMaterialMessages.NextRevisionRequest request) {
     val drafted = new BomMaterial();
     drafted.bom = request.getDrafted();
     drafted.material = request.getLastRevisionMaterial();
     drafted.quantity = quantity;
     drafted.itemSpec = itemSpec;
-    return new NextRevisionResponse(
+    return new BomMaterialMessages.NextRevisionResponse(
       drafted, Collections.emptyList()
     );
   }
 
-  public SwapResponse apply(
-    SwapRequest request) {
+  public BomMaterialMessages.SwapResponse apply(
+    BomMaterialMessages.SwapRequest request) {
     val swapped = new BomMaterial();
     swapped.bom = bom;
     swapped.material = request.getMaterial();
     swapped.quantity = quantity;
     swapped.itemSpec = itemSpec;
-    return new SwapResponse(
+    return new BomMaterialMessages.SwapResponse(
       swapped, Collections.emptyList()
+    );
+  }
+
+  public BomMaterialMessages.ChangeOrderResponse apply(
+    BomMaterialMessages.ChangeOrderRequest request) {
+    if (order == request.getOrder()) {
+      throw new BomExceptions.MaterialCannotChangeOrderException();
+    }
+    order = request.getOrder();
+    return new BomMaterialMessages.ChangeOrderResponse(
+      Collections.emptyList()
     );
   }
 

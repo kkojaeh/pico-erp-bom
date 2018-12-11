@@ -129,4 +129,5 @@ public class BomEntity implements Serializable {
   OffsetDateTime lastModifiedDate;
 
   boolean stable;
+
 }

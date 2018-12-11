@@ -72,4 +72,23 @@ public interface BomMaterialRequests {
 
   }
 
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  class ChangeOrderRequest {
+
+    @Valid
+    @NotNull
+    BomId bomId;
+
+    @Valid
+    @NotNull
+    BomId materialId;
+
+    @NotNull
+    @Min(0)
+    Integer order;
+
+  }
+
 }

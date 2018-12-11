@@ -24,6 +24,8 @@ public interface BomMaterialMessages {
 
     ItemSpecData itemSpec;
 
+    int order;
+
   }
 
   @Value
@@ -51,6 +53,13 @@ public interface BomMaterialMessages {
     BigDecimal quantity;
 
     ItemSpecData itemSpec;
+
+  }
+
+  @Data
+  class ChangeOrderRequest {
+
+    Integer order;
 
   }
 
@@ -99,6 +108,13 @@ public interface BomMaterialMessages {
   class SwapResponse {
 
     BomMaterial swapped;
+
+    Collection<Event> events;
+
+  }
+
+  @Value
+  class ChangeOrderResponse {
 
     Collection<Event> events;
 

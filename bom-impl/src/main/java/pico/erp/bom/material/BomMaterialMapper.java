@@ -1,6 +1,7 @@
 package pico.erp.bom.material;
 
 import java.util.Optional;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -25,15 +26,18 @@ public abstract class BomMaterialMapper {
 
   @Lazy
   @Autowired
+  protected BomMaterialRepository bomMaterialRepository;
+
+  @Lazy
+  @Autowired
   protected ItemSpecService itemSpecService;
 
-  public BomMaterial jpa(BomMaterialEntity entity) {
-    return BomMaterial.builder()
-      .bom(map(entity.getKey().getBomId()))
-      .material(map(entity.getKey().getMaterialId()))
-      .quantity(entity.getQuantity())
-      .itemSpec(map(entity.getItemSpecId()))
-      .build();
+  @AfterMapping
+  protected void afterMapping(BomMaterialRequests.CreateRequest request,
+    @MappingTarget BomMaterialMessages.CreateRequest message) {
+    message.setOrder(
+      (int) bomMaterialRepository.countIncludedMaterialBy(request.getBomId())
+    );
   }
 
   @Mappings({
@@ -46,12 +50,26 @@ public abstract class BomMaterialMapper {
   })
   public abstract BomMaterialEntity jpa(BomMaterial material);
 
+  public BomMaterial jpa(BomMaterialEntity entity) {
+    return BomMaterial.builder()
+      .bom(map(entity.getKey().getBomId()))
+      .material(map(entity.getKey().getMaterialId()))
+      .quantity(entity.getQuantity())
+      .itemSpec(map(entity.getItemSpecId()))
+      .order(entity.getOrder())
+      .build();
+  }
+
   @Mappings({
     @Mapping(target = "bom", source = "bomId"),
     @Mapping(target = "material", source = "materialId"),
-    @Mapping(target = "itemSpec", source = "itemSpecId")
+    @Mapping(target = "itemSpec", source = "itemSpecId"),
+    @Mapping(target = "order", ignore = true)
   })
   public abstract BomMaterialMessages.CreateRequest map(BomMaterialRequests.CreateRequest request);
+
+  public abstract BomMaterialMessages.ChangeOrderRequest map(
+    BomMaterialRequests.ChangeOrderRequest request);
 
   @Mappings({
     @Mapping(target = "itemSpec", source = "itemSpecId")
