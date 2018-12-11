@@ -2,7 +2,9 @@ package pico.erp.bom;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,7 @@ import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.bom.material.BomMaterialService;
 import pico.erp.shared.ApplicationInitializer;
 
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Configuration
 @Profile({"!development", "!production"})
 public class TestDataInitializer implements ApplicationInitializer {
@@ -28,11 +31,15 @@ public class TestDataInitializer implements ApplicationInitializer {
   @Autowired
   private DataProperties dataProperties;
 
+  @SneakyThrows
   @Override
   public void initialize() {
     dataProperties.bomDrafts.forEach(bomService::draft);
     dataProperties.bomProcesses.forEach(bomService::update);
-    dataProperties.bomMaterials.forEach(bomMaterialService::create);
+    dataProperties.bomMaterials.forEach(request -> {
+      bomMaterialService.create(request);
+      TimeUnit.MILLISECONDS.sleep(500L);
+    });
     dataProperties.bomDetermines.forEach(bomService::determine);
   }
 
