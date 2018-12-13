@@ -5,8 +5,10 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pico.erp.item.ItemId;
+import pico.erp.item.spec.ItemSpecId;
 import pico.erp.process.ProcessId;
 
 public interface BomRequests {
@@ -66,6 +68,66 @@ public interface BomRequests {
 
     @Valid
     ProcessId processId;
+
+  }
+
+  @Getter
+  @Builder
+  class DeleteProcessRequest {
+
+    @Valid
+    @NotNull
+    ProcessId processId;
+
+  }
+
+  @Getter
+  @Builder
+  class VerifyByProcessRequest {
+
+    @Valid
+    @NotNull
+    ProcessId processId;
+
+  }
+
+  @Getter
+  @Builder
+  class VerifyByItemSpecRequest {
+
+    @Valid
+    @NotNull
+    ItemSpecId itemSpecId;
+
+  }
+
+  @Getter
+  @Builder
+  class VerifyByItemRequest {
+
+    @Valid
+    @NotNull
+    ItemId itemId;
+
+  }
+
+  @Getter
+  @Builder
+  class VerifyByMaterialRequest {
+
+    @Valid
+    @NotNull
+    BomId materialId;
+
+  }
+
+  @Getter
+  @Builder
+  class VerifyRequest {
+
+    @Valid
+    @NotNull
+    BomId id;
 
   }
 }

@@ -1,4 +1,4 @@
-package pico.erp.bom.material;
+package pico.erp.bom.process;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -8,21 +8,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Value;
 import pico.erp.bom.Bom;
-import pico.erp.item.spec.ItemSpecData;
+import pico.erp.process.ProcessData;
 import pico.erp.shared.event.Event;
 
-public interface BomMaterialMessages {
+public interface BomProcessMessages {
 
   @Data
   class CreateRequest {
 
+    BomProcessId id;
+
     Bom bom;
 
-    Bom material;
+    ProcessData process;
 
-    BigDecimal quantity;
-
-    ItemSpecData itemSpec;
+    BigDecimal conversionRate;
 
     int order;
 
@@ -50,9 +50,7 @@ public interface BomMaterialMessages {
   @Data
   class UpdateRequest {
 
-    BigDecimal quantity;
-
-    ItemSpecData itemSpec;
+    BigDecimal conversionRate;
 
   }
 
@@ -79,35 +77,13 @@ public interface BomMaterialMessages {
     @NotNull
     Bom drafted;
 
-    @Valid
-    @NotNull
-    Bom lastRevisionMaterial;
 
   }
 
   @Value
   class NextRevisionResponse {
 
-    BomMaterial drafted;
-
-    Collection<Event> events;
-
-  }
-
-  @Data
-  @AllArgsConstructor
-  class SwapRequest {
-
-    @Valid
-    @NotNull
-    Bom material;
-
-  }
-
-  @Value
-  class SwapResponse {
-
-    BomMaterial swapped;
+    BomProcess drafted;
 
     Collection<Event> events;
 
@@ -119,5 +95,6 @@ public interface BomMaterialMessages {
     Collection<Event> events;
 
   }
+
 
 }

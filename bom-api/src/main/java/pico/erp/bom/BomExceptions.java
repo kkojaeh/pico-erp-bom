@@ -35,20 +35,20 @@ public interface BomExceptions {
     private static final long serialVersionUID = 1L;
   }
 
-  @ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE, reason = "bom.material.already.exists.exception")
+  @ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE, reason = "bom-material.already.exists.exception")
   class MaterialAlreadyExistsException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
   }
 
-  @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "bom.material.not.found.exception")
+  @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "bom-material.not.found.exception")
   class MaterialNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
   }
 
-  @ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE, reason = "bom.material.cannot.change.order.exception")
+  @ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE, reason = "bom-material.cannot.change.order.exception")
   class MaterialCannotChangeOrderException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
@@ -61,7 +61,7 @@ public interface BomExceptions {
 
   }
 
-  @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "bom.material.circular.reference.exception")
+  @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "bom-material.circular.reference.exception")
   class MaterialCircularReferenceException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

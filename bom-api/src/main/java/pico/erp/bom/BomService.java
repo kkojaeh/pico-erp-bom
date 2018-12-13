@@ -6,15 +6,20 @@ import pico.erp.bom.BomRequests.DeleteRequest;
 import pico.erp.bom.BomRequests.DetermineRequest;
 import pico.erp.bom.BomRequests.DraftRequest;
 import pico.erp.bom.BomRequests.UpdateRequest;
+import pico.erp.bom.BomRequests.VerifyByItemRequest;
+import pico.erp.bom.BomRequests.VerifyByItemSpecRequest;
+import pico.erp.bom.BomRequests.VerifyByMaterialRequest;
+import pico.erp.bom.BomRequests.VerifyByProcessRequest;
+import pico.erp.bom.BomRequests.VerifyRequest;
 import pico.erp.item.ItemId;
 
 public interface BomService {
 
-  void delete(@Valid DeleteRequest request);
+  void delete(@NotNull @Valid DeleteRequest request);
 
-  void determine(@Valid DetermineRequest request);
+  void determine(@NotNull @Valid DetermineRequest request);
 
-  BomData draft(@Valid DraftRequest request);
+  BomData draft(@NotNull @Valid DraftRequest request);
 
   boolean exists(@NotNull BomId id);
 
@@ -32,4 +37,13 @@ public interface BomService {
 
   void update(@Valid UpdateRequest request);
 
+  void verify(@NotNull @Valid VerifyRequest request);
+
+  void verify(@NotNull @Valid VerifyByProcessRequest request);
+
+  void verify(@NotNull @Valid VerifyByItemSpecRequest request);
+
+  void verify(@NotNull @Valid VerifyByItemRequest request);
+
+  void verify(@NotNull @Valid VerifyByMaterialRequest request);
 }
