@@ -8,15 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pico.erp.bom.BomExceptions.NotFoundException;
-import pico.erp.bom.BomRequests.DeleteProcessRequest;
 import pico.erp.bom.BomRequests.DeleteRequest;
 import pico.erp.bom.BomRequests.DetermineRequest;
 import pico.erp.bom.BomRequests.DraftRequest;
-import pico.erp.bom.BomRequests.UpdateRequest;
 import pico.erp.bom.BomRequests.VerifyByItemRequest;
 import pico.erp.bom.BomRequests.VerifyByItemSpecRequest;
 import pico.erp.bom.BomRequests.VerifyByMaterialRequest;
-import pico.erp.bom.BomRequests.VerifyByProcessRequest;
 import pico.erp.bom.BomRequests.VerifyRequest;
 import pico.erp.bom.material.BomMaterialMapper;
 import pico.erp.bom.material.BomMaterialMessages;
@@ -68,29 +65,6 @@ public class BomServiceLogic implements BomService {
     eventPublisher.publishEvents(response.getEvents());
   }
 
-  public void deleteProcess(DeleteProcessRequest request) {
-    bomRepository.findAllBy(request.getProcessId())
-      .forEach(bom -> {
-        if (!bom.isExpired()) {
-          if (bom.isUpdatable()) {
-            val updateRequest = new BomRequests.UpdateRequest(mapper.map(bom));
-            updateRequest.setProcessId(null);
-            update(updateRequest);
-          } else {
-            val drafted = draft(
-              BomRequests.DraftRequest.builder()
-                .id(BomId.generate())
-                .itemId(bom.getItem().getId())
-                .build()
-            );
-            val updateRequest = new BomRequests.UpdateRequest(drafted);
-            updateRequest.setProcessId(null);
-            update(updateRequest);
-          }
-        }
-      });
-  }
-
   @Override
   public boolean exists(BomId id) {
     return bomRepository.exists(id);
@@ -138,16 +112,6 @@ public class BomServiceLogic implements BomService {
       .map(material -> this.getHierarchy(material))
       .collect(Collectors.toList());
     return new BomHierarchyData(bom, materials);
-  }
-
-
-  @Override
-  public void update(UpdateRequest request) {
-    val bom = bomRepository.findBy(request.getId())
-      .orElseThrow(NotFoundException::new);
-    val response = bom.apply(mapper.map(request));
-    bomRepository.update(bom);
-    eventPublisher.publishEvents(response.getEvents());
   }
 
   @Override
@@ -205,18 +169,6 @@ public class BomServiceLogic implements BomService {
       eventPublisher.publishEvents(response.getEvents());
     }
   }
-
-  @Override
-  public void verify(VerifyByProcessRequest request) {
-    bomRepository.findAllBy(request.getProcessId())
-      .map(bom ->
-        BomRequests.VerifyRequest.builder()
-          .id(bom.getId())
-          .build()
-      )
-      .forEach(this::verify);
-  }
-
   @Override
   public void verify(VerifyByItemSpecRequest request) {
     bomMaterialRepository.findBy(request.getItemSpecId())

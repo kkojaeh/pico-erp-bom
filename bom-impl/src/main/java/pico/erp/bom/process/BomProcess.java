@@ -17,6 +17,7 @@ import pico.erp.bom.Bom;
 import pico.erp.bom.BomExceptions.CannotUpdateException;
 import pico.erp.bom.material.BomMaterialMessages;
 import pico.erp.process.ProcessData;
+import pico.erp.process.cost.ProcessCostData;
 
 @Builder
 @Getter
@@ -43,13 +44,14 @@ public class BomProcess implements Serializable {
     if (!request.getBom().isUpdatable()) {
       throw new CannotUpdateException();
     }
+    id = request.getId();
     bom = request.getBom();
     process = request.getProcess();
     conversionRate = request.getConversionRate();
     order = request.getOrder();
 
     return new BomProcessMessages.CreateResponse(
-      Arrays.asList(new BomProcessEvents.CreatedEvent(id))
+      Arrays.asList(new BomProcessEvents.CreatedEvent(id, bom.getId()))
     );
   }
 
@@ -59,7 +61,7 @@ public class BomProcess implements Serializable {
     }
     conversionRate = request.getConversionRate();
     return new BomProcessMessages.UpdateResponse(
-      Arrays.asList(new BomProcessEvents.UpdatedEvent(id))
+      Arrays.asList(new BomProcessEvents.UpdatedEvent(id, bom.getId()))
     );
   }
 
@@ -68,7 +70,11 @@ public class BomProcess implements Serializable {
       throw new CannotUpdateException();
     }
     return new BomProcessMessages.DeleteResponse(
-      Arrays.asList(new BomProcessEvents.DeletedEvent(id))
+      Arrays.asList(new BomProcessEvents.DeletedEvent(
+        id,
+        bom.getId(),
+        process.getId()
+      ))
     );
   }
 
@@ -94,6 +100,18 @@ public class BomProcess implements Serializable {
     return new BomProcessMessages.ChangeOrderResponse(
       Collections.emptyList()
     );
+  }
+
+  public ProcessCostData getEstimatedCost() {
+    return process.getEstimatedCost();
+  }
+
+  public BigDecimal getLossRate() {
+    return process.getLossRate();
+  }
+
+  public boolean isPlanned() {
+    return process.isPlanned();
   }
 
 }

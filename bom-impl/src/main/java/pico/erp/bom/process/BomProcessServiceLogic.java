@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pico.erp.bom.BomId;
+import pico.erp.process.ProcessId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.EventPublisher;
 
@@ -69,6 +70,13 @@ public class BomProcessServiceLogic implements BomProcessService {
   @Override
   public List<BomProcessData> getAll(BomId bomId) {
     return bomProcessRepository.findAllBy(bomId)
+      .map(mapper::map)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<BomProcessData> getAll(ProcessId processId) {
+    return bomProcessRepository.findAllBy(processId)
       .map(mapper::map)
       .collect(Collectors.toList());
   }

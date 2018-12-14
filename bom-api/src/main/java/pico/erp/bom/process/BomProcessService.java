@@ -4,6 +4,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import pico.erp.bom.BomId;
+import pico.erp.process.ProcessId;
 
 public interface BomProcessService {
 
@@ -16,6 +17,8 @@ public interface BomProcessService {
   BomProcessData get(@NotNull BomProcessId id);
 
   List<BomProcessData> getAll(@NotNull BomId bomId);
+
+  List<BomProcessData> getAll(@NotNull ProcessId processId);
 
   void update(@Valid BomProcessRequests.UpdateRequest request);
 

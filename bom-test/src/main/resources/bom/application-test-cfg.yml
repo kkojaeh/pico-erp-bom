@@ -22,54 +22,64 @@ data:
       item-id: toothbrush-04
     - id: toothbrush-05
       item-id: toothbrush-05
-    - id: toothbrush-051
-      item-id: toothbrush-051
-    - id: toothbrush-052
-      item-id: toothbrush-052
     - id: toothbrush-06
       item-id: toothbrush-06
-    - id: toothbrush-061
-      item-id: toothbrush-061
     - id: toothbrush-07
       item-id: toothbrush-07
-    - id: toothbrush-071
-      item-id: toothbrush-071
-    - id: toothbrush-072
-      item-id: toothbrush-072
-    - id: toothbrush-073
-      item-id: toothbrush-073
-    - id: materail-paper-iv
-      item-id: materail-paper-iv
-    - id: materail-paper-sc
-      item-id: materail-paper-sc
-    - id: sk-k-e
-      item-id: sk-k-e
+    - id: material-paper-iv
+      item-id: material-paper-iv
+    - id: material-paper-sc
+      item-id: material-paper-sc
+    - id: material-sk-k-e
+      item-id: material-sk-k-e
     - id: material-pet-04t
       item-id: material-pet-04t
 
   bom-processes:
     - id: bom-2
+      bom-id: bom-2
       process-id: item-2-process-1
+      conversion-rate: 1
     - id: toothbrush-0
+      bom-id: toothbrush-0
       process-id: toothbrush-0
-    - id: toothbrush-05
-      process-id: toothbrush-05
+      conversion-rate: 1
     - id: toothbrush-051
+      bom-id: toothbrush-05
       process-id: toothbrush-051
+      conversion-rate: 1
     - id: toothbrush-052
+      bom-id: toothbrush-05
       process-id: toothbrush-052
-    - id: toothbrush-06
-      process-id: toothbrush-06
+      conversion-rate: 1
+    - id: toothbrush-053
+      bom-id: toothbrush-05
+      process-id: toothbrush-053
+      conversion-rate: 4
     - id: toothbrush-061
+      bom-id: toothbrush-06
       process-id: toothbrush-061
-    - id: toothbrush-07
-      process-id: toothbrush-07
+      conversion-rate: 1
+    - id: toothbrush-062
+      bom-id: toothbrush-06
+      process-id: toothbrush-062
+      conversion-rate: 1
     - id: toothbrush-071
+      bom-id: toothbrush-07
       process-id: toothbrush-071
+      conversion-rate: 1
     - id: toothbrush-072
+      bom-id: toothbrush-07
       process-id: toothbrush-072
+      conversion-rate: 1
     - id: toothbrush-073
+      bom-id: toothbrush-07
       process-id: toothbrush-073
+      conversion-rate: 1
+    - id: toothbrush-074
+      bom-id: toothbrush-07
+      process-id: toothbrush-074
+      conversion-rate: 1
 
   bom-materials:
     - bom-id: bom-1
@@ -106,37 +116,19 @@ data:
       material-id: toothbrush-07
       quantity: 0.1
     - bom-id: toothbrush-05
-      material-id: toothbrush-052
+      material-id: material-paper-iv
       quantity: 0.25
-    - bom-id: toothbrush-052
-      material-id: toothbrush-051
-      quantity: 1
-    - bom-id: toothbrush-051
-      material-id: materail-paper-iv
-      quantity: 1
-      item-spec-id: materail-paper-iv-spec-1
+      item-spec-id: material-paper-iv-spec-1
     - bom-id: toothbrush-06
-      material-id: toothbrush-061
-      quantity: 1
-    - bom-id: toothbrush-061
       material-id: material-pet-04t
       quantity: 0.4
     - bom-id: toothbrush-07
-      material-id: toothbrush-073
+      material-id: material-sk-k-e
+      item-spec-id: material-sk-k-e-spec-1
       quantity: 1
-    - bom-id: toothbrush-073
-      material-id: toothbrush-072
-      quantity: 1
-    - bom-id: toothbrush-072
-      material-id: toothbrush-071
-      quantity: 1
-    - bom-id: toothbrush-072
-      material-id: sk-k-e
-      item-spec-id: sk-k-e-spec-1
-      quantity: 1
-    - bom-id: toothbrush-071
-      material-id: materail-paper-sc
-      item-spec-id: materail-paper-sc-spec-1
+    - bom-id: toothbrush-07
+      material-id: material-paper-sc
+      item-spec-id: material-paper-sc-spec-1
       quantity: 1
 
   bom-determines:
@@ -145,16 +137,14 @@ data:
     - id: bom-3
     - id: bom-2
     - id: bom-1
-    - id: materail-paper-sc
-    - id: materail-paper-iv
-    - id: sk-k-e
-    - id: toothbrush-071
-    - id: toothbrush-072
-    - id: toothbrush-073
+    - id: material-paper-sc
+    - id: material-paper-iv
+    - id: material-sk-k-e
     - id: toothbrush-07
-    - id: toothbrush-061
     - id: toothbrush-06
-    - id: toothbrush-051
-    - id: toothbrush-052
     - id: toothbrush-05
+    - id: toothbrush-04
+    - id: toothbrush-03
+    - id: toothbrush-02
+    - id: toothbrush-01
     - id: toothbrush-0

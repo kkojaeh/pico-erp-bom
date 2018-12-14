@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.AuditorAware;
 import pico.erp.bom.material.BomMaterialRepository;
+import pico.erp.bom.process.BomProcessRepository;
 import pico.erp.item.ItemData;
 import pico.erp.item.ItemId;
 import pico.erp.item.ItemService;
@@ -41,6 +42,10 @@ public abstract class BomMapper {
   @Autowired
   protected BomMaterialRepository bomMaterialRepository;
 
+  @Lazy
+  @Autowired
+  protected BomProcessRepository bomProcessRepository;
+
   protected Bom lastRevision(ItemId itemId) {
     return bomRepository.findWithLastRevision(itemId)
       .orElse(null);
@@ -58,11 +63,6 @@ public abstract class BomMapper {
       .item(itemService.get(entity.getItemId()))
       .revision(entity.getRevision())
       .status(entity.getStatus())
-      .process(
-        Optional.ofNullable(entity.getProcessId())
-          .map(id -> processService.get(id))
-          .orElse(null)
-      )
       .estimatedIsolatedUnitCost(entity.getEstimatedIsolatedUnitCost().to())
       .estimatedAccumulatedUnitCost(entity.getEstimatedAccumulatedUnitCost().to())
       .draftedBy(entity.getDraftedBy())
@@ -70,8 +70,12 @@ public abstract class BomMapper {
       .determinedBy(entity.getDeterminedBy())
       .determinedDate(entity.getDeterminedDate())
       .stable(entity.isStable())
+      .lossRate(entity.getLossRate())
       .materials(
         bomMaterialRepository.findAllIncludedMaterialBy(entity.getId()).collect(Collectors.toList())
+      )
+      .processes(
+        bomProcessRepository.findAllBy(entity.getId()).collect(Collectors.toList())
       )
       .build();
   }
@@ -88,11 +92,6 @@ public abstract class BomMapper {
       .item(itemService.get(entity.getItemId()))
       .revision(entity.getRevision())
       .status(entity.getStatus())
-      .process(
-        Optional.ofNullable(entity.getProcessId())
-          .map(id -> processService.get(id))
-          .orElse(null)
-      )
       .estimatedIsolatedUnitCost(entity.getEstimatedIsolatedUnitCost().to())
       .estimatedAccumulatedUnitCost(entity.getEstimatedAccumulatedUnitCost().to())
       .draftedBy(entity.getDraftedBy())
@@ -100,14 +99,13 @@ public abstract class BomMapper {
       .determinedBy(entity.getDeterminedBy())
       .determinedDate(entity.getDeterminedDate())
       .stable(entity.isStable())
+      .lossRate(entity.getLossRate())
       .build();
     return bom;
   }
 
   @Mappings({
     @Mapping(target = "itemId", source = "item.id"),
-    @Mapping(target = "processId", source = "process.id"),
-    @Mapping(target = "processName", source = "process.name"),
     @Mapping(target = "lastModifiedBy", ignore = true),
     @Mapping(target = "lastModifiedDate", ignore = true)
   })
@@ -134,13 +132,7 @@ public abstract class BomMapper {
   public abstract BomMessages.DraftRequest map(BomRequests.DraftRequest request);
 
   @Mappings({
-    @Mapping(target = "process", source = "processId")
-  })
-  public abstract BomMessages.UpdateRequest map(BomRequests.UpdateRequest request);
-
-  @Mappings({
     @Mapping(target = "itemId", source = "item.id"),
-    @Mapping(target = "processId", source = "process.id"),
     @Mapping(target = "quantity", expression = "java(BigDecimal.ONE)"),
     @Mapping(target = "itemSpecId", ignore = true),
     @Mapping(target = "parent", ignore = true),

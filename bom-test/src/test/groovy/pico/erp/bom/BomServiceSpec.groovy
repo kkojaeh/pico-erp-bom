@@ -10,6 +10,9 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import pico.erp.bom.material.BomMaterialRequests
 import pico.erp.bom.material.BomMaterialService
+import pico.erp.bom.process.BomProcessId
+import pico.erp.bom.process.BomProcessRequests
+import pico.erp.bom.process.BomProcessService
 import pico.erp.company.CompanyId
 import pico.erp.item.ItemId
 import pico.erp.item.ItemRequests
@@ -49,6 +52,10 @@ class BomServiceSpec extends Specification {
   @Autowired
   ProcessService processService
 
+  @Lazy
+  @Autowired
+  BomProcessService bomProcessService
+
   def itemCategoryId = ItemCategoryId.from("category-1")
 
   def customerId = CompanyId.from("CUST1")
@@ -69,6 +76,10 @@ class BomServiceSpec extends Specification {
 
   def processId = ProcessId.from("process-1")
 
+  def bomProcessId = BomProcessId.from("bom-process-1")
+
+  def bomProcessId2 = BomProcessId.from("bom-process-2")
+
   def setup() {
 
     itemService.create(new ItemRequests.CreateRequest(id: itemId1, name: "테스트", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 0))
@@ -77,7 +88,6 @@ class BomServiceSpec extends Specification {
     processService.create(
       new ProcessRequests.CreateRequest(
         id: processId,
-        itemId: itemId1,
         lossRate: 0.01,
         typeId: ProcessTypeId.from("PO"),
         adjustCost: 0,
@@ -113,6 +123,28 @@ class BomServiceSpec extends Specification {
         bomId: bomId1,
         materialId: bomId2,
         quantity: 2
+      )
+    )
+  }
+
+  def addProcess() {
+    bomProcessService.create(
+      new BomProcessRequests.CreateRequest(
+        id: bomProcessId,
+        bomId: bomId1,
+        processId: processId,
+        conversionRate: 1
+      )
+    )
+  }
+
+  def addProcess2() {
+    bomProcessService.create(
+      new BomProcessRequests.CreateRequest(
+        id: bomProcessId2,
+        bomId: bomId2,
+        processId: processId,
+        conversionRate: 1
       )
     )
   }
@@ -155,15 +187,6 @@ class BomServiceSpec extends Specification {
   def determine2() {
     bomService.determine(
       new BomRequests.DetermineRequest(id: bomId2)
-    )
-  }
-
-  def update1() {
-    bomService.update(
-      new BomRequests.UpdateRequest(
-        id: bomId1,
-        processId: processId
-      )
     )
   }
 
@@ -327,17 +350,6 @@ class BomServiceSpec extends Specification {
     bom.determinedDate != null
   }
 
-  def "수정 - 확정 후 수정"() {
-    when:
-    determine2()
-    addMaterial()
-    determine1()
-    update1()
-
-    then:
-    thrown(BomExceptions.CannotUpdateException)
-  }
-
   def "자재 추가 - 확정 후 추가"() {
     when:
     determine1()
@@ -393,20 +405,19 @@ class BomServiceSpec extends Specification {
 
   def "누적단가 - 누적 단가 확인"() {
     when:
-    bomService.update(new BomRequests.UpdateRequest(id: bomId1, processId: processId))
-    bomService.update(new BomRequests.UpdateRequest(id: bomId2, processId: processId))
     addMaterial()
+    addProcess()
     def bom = bomService.get(bomId1)
 
     then:
-    bom.estimatedAccumulatedUnitCost.total == 900
+    bom.estimatedAccumulatedUnitCost.total == 700
     bom.estimatedAccumulatedUnitCost.directMaterial == 600
   }
 
   def "누적단가 - 자재의 가격 변경 영향"() {
     when:
-    bomService.update(new BomRequests.UpdateRequest(id: bomId1, processId: processId))
-    bomService.update(new BomRequests.UpdateRequest(id: bomId2, processId: processId))
+    addProcess()
+    addProcess2()
     addMaterial()
     updateItem()
 
@@ -444,6 +455,9 @@ class BomServiceSpec extends Specification {
 
   def "BOM 여분율 계산"() {
     when:
+
+    println BomId.from("bom-2")
+
     def hierarchy = bomService.getHierarchy(BomId.from("bom-1"))
     def leaf = hierarchy.materials[0].materials[0].materials[0].materials[0]
 

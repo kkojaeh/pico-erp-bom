@@ -21,14 +21,12 @@ import lombok.val;
 import pico.erp.audit.annotation.Audit;
 import pico.erp.bom.BomEvents.NextRevisionCreatedEvent;
 import pico.erp.bom.BomExceptions.AlreadyDraftStatusException;
-import pico.erp.bom.BomExceptions.CannotUpdateException;
 import pico.erp.bom.BomMessages.DraftResponse;
 import pico.erp.bom.BomMessages.NextRevisionRequest;
 import pico.erp.bom.unit.cost.BomUnitCost;
 import pico.erp.item.ItemData;
 import pico.erp.item.ItemTypeKind;
 import pico.erp.item.spec.ItemSpecData;
-import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -62,12 +60,6 @@ public class Bom implements Serializable {
   BomStatusKind status;
 
 
-  /**
-   * 공정 정보
-   */
-  ProcessData process;
-
-
   BomUnitCost estimatedIsolatedUnitCost;
 
 
@@ -88,6 +80,8 @@ public class Bom implements Serializable {
 
   OffsetDateTime draftedDate;
 
+  BigDecimal lossRate;
+
   /**
    * bom
    */
@@ -99,6 +93,7 @@ public class Bom implements Serializable {
     this.status = BomStatusKind.DRAFT;
     this.estimatedIsolatedUnitCost = BomUnitCost.ZERO;
     this.estimatedAccumulatedUnitCost = BomUnitCost.ZERO;
+    this.lossRate = BigDecimal.ZERO;
   }
 
 
@@ -125,17 +120,6 @@ public class Bom implements Serializable {
     );
   }
 
-  public BomMessages.UpdateResponse apply(BomMessages.UpdateRequest request) {
-    if (!isUpdatable()) {
-      throw new CannotUpdateException();
-    }
-    process = request.getProcess();
-    //val recalculateResponse = apply(new CalculateEstimatedUnitCostRequest());
-    return new BomMessages.UpdateResponse(
-      Arrays.asList(new BomEvents.UpdatedEvent(this.id))
-    );
-  }
-
   public boolean isUpdatable() {
     return status == BomStatusKind.DRAFT;
   }
@@ -152,7 +136,6 @@ public class Bom implements Serializable {
     drafted.revision = this.revision + 1;
     drafted.item = item;
     drafted.status = BomStatusKind.DRAFT;
-    drafted.process = process;
     drafted.estimatedIsolatedUnitCost = estimatedIsolatedUnitCost;
     drafted.estimatedAccumulatedUnitCost = estimatedAccumulatedUnitCost;
     drafted.draftedBy = request.getDraftedBy();
@@ -187,15 +170,6 @@ public class Bom implements Serializable {
   public boolean isDetermined() {
     return status == BomStatusKind.DETERMINED;
   }
-
-
-  public BigDecimal getLossRate() {
-    if (process != null) {
-      return process.getLossRate();
-    }
-    return BigDecimal.ZERO;
-  }
-
 
   @Value
   @ToString

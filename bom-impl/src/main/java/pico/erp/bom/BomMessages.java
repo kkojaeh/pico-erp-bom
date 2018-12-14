@@ -4,12 +4,10 @@ import java.util.Collection;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import pico.erp.item.ItemData;
-import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -56,17 +54,6 @@ public interface BomMessages {
 
   }
 
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  class UpdateRequest {
-
-    @Valid
-    ProcessData process;
-
-  }
-
   @Value
   class DetermineResponse {
 
@@ -96,16 +83,6 @@ public interface BomMessages {
     Collection<Event> events;
 
   }
-
-
-
-  @Value
-  class UpdateResponse {
-
-    Collection<Event> events;
-
-  }
-
 
   @Data
   @NoArgsConstructor

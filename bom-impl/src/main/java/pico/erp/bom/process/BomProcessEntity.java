@@ -50,7 +50,6 @@ public class BomProcessEntity implements Serializable {
   })
   BomProcessId id;
 
-  @EmbeddedId
   @AttributeOverrides({
     @AttributeOverride(name = "value", column = @Column(name = "BOM_ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
   })

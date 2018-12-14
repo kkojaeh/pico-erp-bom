@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
 import pico.erp.item.ItemId;
-import pico.erp.process.ProcessId;
 
 public interface BomRepository {
 
@@ -17,8 +16,6 @@ public interface BomRepository {
   boolean exists(@NotNull BomId id);
 
   Stream<Bom> findAllBy(@NotNull ItemId itemId);
-
-  Stream<Bom> findAllBy(@NotNull ProcessId id);
 
   Optional<Bom> findBy(@NotNull BomId id);
 

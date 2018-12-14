@@ -14,7 +14,6 @@ import lombok.val;
 import pico.erp.bom.unit.cost.BomUnitCostData;
 import pico.erp.item.ItemId;
 import pico.erp.item.spec.ItemSpecId;
-import pico.erp.process.ProcessId;
 import pico.erp.shared.data.Auditor;
 
 @Data
@@ -33,15 +32,11 @@ public class BomData {
 
   BomStatusKind status;
 
-  ProcessId processId;
-
   Auditor determinedBy;
 
   OffsetDateTime determinedDate;
 
   BigDecimal quantity;
-
-  BigDecimal lossRate;
 
   BomUnitCostData estimatedIsolatedUnitCost;
 
@@ -62,6 +57,8 @@ public class BomData {
 
   boolean stable;
 
+  BigDecimal lossRate;
+
   public BigDecimal getQuantityRatio() {
     if (parent != null) {
       return quantity.multiply(parent.getQuantityRatio());
@@ -73,7 +70,12 @@ public class BomData {
   public BigDecimal getSpareRatio() {
     if (parent != null) {
       val one = BigDecimal.ONE;
-      return parent.getLossRate().add(one).multiply(parent.getSpareRatio().add(one)).subtract(one);
+      return parent.getLossRate().add(one)
+        .multiply(
+          parent.getSpareRatio().add(one)
+        )
+        .subtract(one)
+        .setScale(5, BigDecimal.ROUND_HALF_UP);
     } else {
       return BigDecimal.ZERO;
     }

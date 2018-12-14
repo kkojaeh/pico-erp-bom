@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pico.erp.item.ItemId;
 import pico.erp.item.spec.ItemSpecId;
-import pico.erp.process.ProcessId;
 
 public interface BomRequests {
 
@@ -48,46 +47,6 @@ public interface BomRequests {
     @Valid
     @NotNull
     ItemId itemId;
-
-  }
-
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  class UpdateRequest {
-
-    public UpdateRequest(BomData data) {
-      this.id = data.getId();
-      this.processId = data.getProcessId();
-    }
-
-    @Valid
-    @NotNull
-    BomId id;
-
-    @Valid
-    ProcessId processId;
-
-  }
-
-  @Getter
-  @Builder
-  class DeleteProcessRequest {
-
-    @Valid
-    @NotNull
-    ProcessId processId;
-
-  }
-
-  @Getter
-  @Builder
-  class VerifyByProcessRequest {
-
-    @Valid
-    @NotNull
-    ProcessId processId;
 
   }
 

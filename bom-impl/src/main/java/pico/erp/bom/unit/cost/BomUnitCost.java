@@ -9,9 +9,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import pico.erp.bom.Bom;
+import lombok.val;
 import pico.erp.bom.Bom.BomCalculateContext;
-import pico.erp.process.cost.ProcessCostData;
+import pico.erp.bom.BomAggregator;
+import pico.erp.bom.process.BomProcess;
 
 @Getter
 @ToString
@@ -62,17 +63,35 @@ public class BomUnitCost implements Serializable {
    */
   BigDecimal indirectExpenses;
 
-  public BomUnitCost(Bom bom) {
-    ProcessCostData cost =
-      bom.getProcess() != null ? bom.getProcess().getEstimatedCost() : ProcessCostData.ZERO;
+  public BomUnitCost(BomAggregator bom) {
     directMaterial =
       bom.getItem() != null ? bom.getItem().getBaseUnitCost() : BigDecimal.ZERO;
-    indirectMaterial = cost.getIndirectMaterial();
-    directLabor = cost.getDirectLabor();
-    indirectLabor = cost.getIndirectLabor();
-    indirectExpenses = cost.getIndirectExpenses();
+    indirectMaterial = BigDecimal.ZERO;
+    directLabor = BigDecimal.ZERO;
+    indirectLabor = BigDecimal.ZERO;
+    indirectExpenses = BigDecimal.ZERO;
+    val processes = bom.getProcesses();
+    val size = processes.size();
+    for (int i = 0; i < size; i++) {
+      val process = processes.get(i);
+      val stackedConversionRate = processes.subList(0, i + 1).stream()
+        .map(BomProcess::getConversionRate)
+        .reduce(BigDecimal.ONE, (acc, curr) -> curr.multiply(acc))
+        .setScale(5, BigDecimal.ROUND_HALF_UP);
+      this.add(process, stackedConversionRate);
+    }
     total = directMaterial.add(indirectMaterial)
       .add(directLabor).add(indirectLabor).add(indirectExpenses);
+  }
+
+  private void add(BomProcess process, BigDecimal stackedConversionRate) {
+    val cost = process.getEstimatedCost();
+    indirectMaterial = indirectMaterial
+      .add(cost.getIndirectMaterial().multiply(stackedConversionRate));
+    directLabor = directLabor.add(cost.getDirectLabor().multiply(stackedConversionRate));
+    indirectLabor = indirectLabor.add(cost.getIndirectLabor().multiply(stackedConversionRate));
+    indirectExpenses = indirectExpenses
+      .add(cost.getIndirectExpenses().multiply(stackedConversionRate));
   }
 
   public BomUnitCost add(BomUnitCost unitCost, BigDecimal quantity) {
@@ -103,6 +122,5 @@ public class BomUnitCost implements Serializable {
       .indirectExpenses(indirectExpenses)
       .build();
   }
-
 
 }

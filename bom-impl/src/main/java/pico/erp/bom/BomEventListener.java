@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.material.BomMaterialEvents;
 import pico.erp.bom.material.BomMaterialService;
+import pico.erp.bom.process.BomProcessEvents;
 import pico.erp.item.ItemEvents;
 import pico.erp.item.spec.ItemSpecEvents;
 import pico.erp.item.spec.ItemSpecRequests;
 import pico.erp.item.spec.ItemSpecService;
-import pico.erp.process.ProcessEvents;
 
 @SuppressWarnings("unused")
 @Component
@@ -115,6 +115,36 @@ public class BomEventListener {
     );
   }
 
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.CreatedEvent.CHANNEL)
+  public void onBomProcessCreated(BomProcessEvents.CreatedEvent event) {
+    bomService.verify(
+      BomRequests.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.UpdatedEvent.CHANNEL)
+  public void onBomProcessUpdated(BomProcessEvents.UpdatedEvent event) {
+    bomService.verify(
+      BomRequests.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.DeletedEvent.CHANNEL)
+  public void onBomProcessUpdated(BomProcessEvents.DeletedEvent event) {
+    bomService.verify(
+      BomRequests.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
   /**
    * BOM 이 새버전이되면 하위 BOM 과 연결된 품목 스펙을 잠금해제
    */
@@ -170,24 +200,5 @@ public class BomEventListener {
     );
   }
 
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.DeletedEvent.CHANNEL)
-  public void onProcessDeleted(ProcessEvents.DeletedEvent event) {
-    bomService.deleteProcess(
-      BomRequests.DeleteProcessRequest.builder()
-        .processId(event.getProcessId())
-        .build()
-    );
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.EstimatedCostChangedEvent.CHANNEL)
-  public void onProcessEstimatedCostChanged(ProcessEvents.EstimatedCostChangedEvent event) {
-    bomService.verify(
-      BomRequests.VerifyByProcessRequest.builder()
-        .processId(event.getProcessId())
-        .build()
-    );
-  }
 
 }

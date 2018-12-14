@@ -85,7 +85,6 @@ public abstract class BomMaterialMapper {
     @Mapping(target = "itemId", source = "material.item.id"),
     @Mapping(target = "revision", source = "material.revision"),
     @Mapping(target = "status", source = "material.status"),
-    @Mapping(target = "processId", source = "material.process.id"),
     @Mapping(target = "estimatedIsolatedUnitCost", source = "estimatedIsolatedUnitCost"),
     @Mapping(target = "estimatedAccumulatedUnitCost", source = "estimatedAccumulatedUnitCost"),
     @Mapping(target = "determinedBy", source = "material.determinedBy"),
@@ -95,10 +94,9 @@ public abstract class BomMaterialMapper {
     @Mapping(target = "material", source = "material.material"),
     @Mapping(target = "updatable", source = "material.updatable"),
     @Mapping(target = "stable", source = "material.stable"),
-    @Mapping(target = "lossRate", source = "material.lossRate"),
     @Mapping(target = "itemSpecId", source = "itemSpec.id"),
     @Mapping(target = "parent", source = "bom"),
-
+    @Mapping(target = "lossRate", source = "material.lossRate"),
   })
   public abstract BomData map(BomMaterial material);
 

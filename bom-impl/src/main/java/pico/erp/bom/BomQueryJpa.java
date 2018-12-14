@@ -38,8 +38,6 @@ public class BomQueryJpa implements BomQuery {
       bom.id,
       bom.revision,
       bom.status,
-      bom.processId,
-      bom.processName,
       bom.determinedBy,
       bom.determinedDate,
       bom.draftedBy,
