@@ -8,16 +8,18 @@ import pico.erp.bom.BomId;
 
 public interface BomMaterialService {
 
-  BomData create(@Valid BomMaterialRequests.CreateRequest request);
+  void changeOrder(@Valid @NotNull BomMaterialRequests.ChangeOrderRequest request);
 
-  void delete(@Valid BomMaterialRequests.DeleteRequest request);
+  BomData create(@Valid @NotNull BomMaterialRequests.CreateRequest request);
 
   BomData get(@NotNull BomId bomId, @NotNull BomId materialId);
 
   List<BomData> getAll(@NotNull BomId bomId);
 
-  void update(@Valid BomMaterialRequests.UpdateRequest request);
+  void delete(@Valid @NotNull BomMaterialRequests.DeleteRequest request);
 
-  void changeOrder(@Valid BomMaterialRequests.ChangeOrderRequest request);
+  void nextRevision(@Valid @NotNull BomMaterialRequests.NextRevisionRequest request);
+
+  void update(@Valid @NotNull BomMaterialRequests.UpdateRequest request);
 
 }

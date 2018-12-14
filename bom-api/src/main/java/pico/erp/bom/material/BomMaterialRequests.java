@@ -91,4 +91,19 @@ public interface BomMaterialRequests {
 
   }
 
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  class NextRevisionRequest {
+
+    @Valid
+    @NotNull
+    BomId previousId;
+
+    @Valid
+    @NotNull
+    BomId nextRevisionId;
+
+  }
+
 }

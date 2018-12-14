@@ -15,7 +15,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import pico.erp.bom.Bom;
 import pico.erp.bom.BomExceptions.CannotUpdateException;
-import pico.erp.bom.material.BomMaterialMessages;
 import pico.erp.process.ProcessData;
 import pico.erp.process.cost.ProcessCostData;
 
@@ -79,7 +78,7 @@ public class BomProcess implements Serializable {
   }
 
   public BomProcessMessages.NextRevisionResponse apply(
-    BomMaterialMessages.NextRevisionRequest request) {
+    BomProcessMessages.NextRevisionRequest request) {
     val drafted = new BomProcess();
     drafted.id = BomProcessId.generate();
     drafted.bom = request.getDrafted();

@@ -1,5 +1,6 @@
 package pico.erp.bom.material;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.val;
@@ -11,8 +12,12 @@ import pico.erp.bom.BomData;
 import pico.erp.bom.BomExceptions;
 import pico.erp.bom.BomId;
 import pico.erp.bom.BomRepository;
+import pico.erp.bom.BomRequests.DraftRequest;
+import pico.erp.bom.BomService;
 import pico.erp.bom.material.BomMaterialRequests.ChangeOrderRequest;
+import pico.erp.bom.material.BomMaterialRequests.NextRevisionRequest;
 import pico.erp.shared.Public;
+import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
 
 @Service
@@ -33,6 +38,10 @@ public class BomMaterialServiceLogic implements BomMaterialService {
 
   @Autowired
   private BomMaterialMapper mapper;
+
+
+  @Autowired
+  private BomService bomService;
 
   @Override
   public BomData create(BomMaterialRequests.CreateRequest request) {
@@ -105,6 +114,40 @@ public class BomMaterialServiceLogic implements BomMaterialService {
     val response = material.apply(mapper.map(request));
     bomMaterialRepository.update(material);
     eventPublisher.publishEvents(response.getEvents());
+  }
+
+  @Override
+  public void nextRevision(NextRevisionRequest request) {
+    val events = new LinkedList<Event>();
+    val previousId = request.getPreviousId();
+    val created = bomRepository.findBy(request.getNextRevisionId()).get();
+    // 새로 생성된 BOM 에 기존 BOM 의 자재를 동일하게 생성
+    bomMaterialRepository.findAllIncludedMaterialBy(previousId)
+      .forEach(material -> {
+        val response = material.apply(new BomMaterialMessages.NextRevisionRequest(
+          created,
+          bomRepository.findWithLastRevision(material.getMaterial().getItem().getId()).get()
+        ));
+        val drafted = response.getDrafted();
+        bomMaterialRepository.create(drafted);
+        events.addAll(response.getEvents());
+
+      });
+    // 새로 생성된 BOM 을 참조하고 있는 BOM 의 새버전을 생성하거나 해당 자재만 교체
+    bomMaterialRepository.findAllIncludeMaterialBomBy(previousId)
+      .forEach(referenced -> {
+        if (referenced.isDetermined()) {
+          bomService.draft(new DraftRequest(BomId.generate(), referenced.getItem().getId()));
+        } else {
+          val material = bomMaterialRepository.findBy(referenced.getId(), previousId)
+            .get();
+          val response = material.apply(new BomMaterialMessages.SwapRequest(created));
+          bomMaterialRepository.create(response.getSwapped());
+          bomMaterialRepository.deleteBy(material);
+          events.addAll(response.getEvents());
+        }
+      });
+    eventPublisher.publishEvents(events);
   }
 
 }

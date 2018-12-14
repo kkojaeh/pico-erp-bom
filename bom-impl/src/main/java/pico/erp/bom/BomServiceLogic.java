@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.stream.Collectors;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -16,8 +17,11 @@ import pico.erp.bom.BomRequests.VerifyByItemSpecRequest;
 import pico.erp.bom.BomRequests.VerifyByMaterialRequest;
 import pico.erp.bom.BomRequests.VerifyRequest;
 import pico.erp.bom.material.BomMaterialMapper;
-import pico.erp.bom.material.BomMaterialMessages;
 import pico.erp.bom.material.BomMaterialRepository;
+import pico.erp.bom.material.BomMaterialRequests;
+import pico.erp.bom.material.BomMaterialService;
+import pico.erp.bom.process.BomProcessRequests;
+import pico.erp.bom.process.BomProcessService;
 import pico.erp.item.ItemId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;
@@ -46,6 +50,14 @@ public class BomServiceLogic implements BomService {
 
   @Autowired
   private BomMaterialMapper materialMapper;
+
+  @Lazy
+  @Autowired
+  private BomMaterialService bomMaterialService;
+
+  @Lazy
+  @Autowired
+  private BomProcessService bomProcessService;
 
   @Override
   public void delete(DeleteRequest request) {
@@ -127,34 +139,22 @@ public class BomServiceLogic implements BomService {
     events.addAll(response.getEvents());
     if (previous != null) {
       bomRepository.update(previous);
-      // 새로 생성된 BOM 에 기존 BOM 의 자재를 동일하게 생성
-      bomMaterialRepository.findAllIncludedMaterialBy(previous.getId())
-        .forEach(material -> {
-          val nextRevisionResponse = material.apply(new BomMaterialMessages.NextRevisionRequest(
-            created,
-            bomRepository.findWithLastRevision(material.getMaterial().getItem().getId()).get()
-          ));
-          val draftedMaterial = nextRevisionResponse.getDrafted();
-          bomMaterialRepository.create(draftedMaterial);
-          events.addAll(nextRevisionResponse.getEvents());
-
-        });
-      // 새로 생성된 BOM 을 참조하고 있는 BOM 의 새버전을 생성하거나 해당 자재만 교체
-      bomMaterialRepository.findAllIncludeMaterialBomBy(previous.getId())
-        .forEach(referenced -> {
-          if (referenced.isDetermined()) {
-            this.draft(new DraftRequest(BomId.generate(), referenced.getItem().getId()));
-          } else {
-            val oldMaterial = bomMaterialRepository.findBy(referenced.getId(), previous.getId())
-              .get();
-            val swapResponse = oldMaterial.apply(new BomMaterialMessages.SwapRequest(created));
-            bomMaterialRepository.create(swapResponse.getSwapped());
-            bomMaterialRepository.deleteBy(oldMaterial);
-            events.addAll(swapResponse.getEvents());
-          }
-        });
+      eventPublisher.publishEvents(events);
+      bomMaterialService.nextRevision(
+        new BomMaterialRequests.NextRevisionRequest(
+          previous.getId(),
+          created.getId()
+        )
+      );
+      bomProcessService.nextRevision(
+        new BomProcessRequests.NextRevisionRequest(
+          previous.getId(),
+          created.getId()
+        )
+      );
+    } else {
+      eventPublisher.publishEvents(events);
     }
-    eventPublisher.publishEvents(events);
     return mapper.map(created);
   }
 

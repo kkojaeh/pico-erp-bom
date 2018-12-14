@@ -1,5 +1,6 @@
 package pico.erp.bom.process;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.val;
@@ -8,8 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pico.erp.bom.BomId;
+import pico.erp.bom.BomRepository;
+import pico.erp.bom.process.BomProcessRequests.NextRevisionRequest;
 import pico.erp.process.ProcessId;
 import pico.erp.shared.Public;
+import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
 
 @Service
@@ -26,6 +30,9 @@ public class BomProcessServiceLogic implements BomProcessService {
 
   @Autowired
   private EventPublisher eventPublisher;
+
+  @Autowired
+  private BomRepository bomRepository;
 
   @Override
   public void changeOrder(BomProcessRequests.ChangeOrderRequest request) {
@@ -88,5 +95,20 @@ public class BomProcessServiceLogic implements BomProcessService {
     val response = bomProcess.apply(mapper.map(request));
     bomProcessRepository.update(bomProcess);
     eventPublisher.publishEvents(response.getEvents());
+  }
+
+  @Override
+  public void nextRevision(NextRevisionRequest request) {
+    val events = new LinkedList<Event>();
+    val previousId = request.getPreviousId();
+    val created = bomRepository.findBy(request.getNextRevisionId()).get();
+    bomProcessRepository.findAllBy(previousId)
+      .forEach(process -> {
+        val response = process.apply(new BomProcessMessages.NextRevisionRequest(created));
+        val drafted = response.getDrafted();
+        bomProcessRepository.create(drafted);
+        events.addAll(response.getEvents());
+      });
+    eventPublisher.publishEvents(events);
   }
 }

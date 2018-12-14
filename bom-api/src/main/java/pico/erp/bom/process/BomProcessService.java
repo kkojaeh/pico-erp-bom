@@ -22,4 +22,6 @@ public interface BomProcessService {
 
   void update(@Valid BomProcessRequests.UpdateRequest request);
 
+  void nextRevision(@Valid @NotNull BomProcessRequests.NextRevisionRequest request);
+
 }
