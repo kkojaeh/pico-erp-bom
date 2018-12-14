@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pico.erp.process.ProcessId;
 import pico.erp.shared.data.Auditor;
 
 @AllArgsConstructor
@@ -19,10 +18,6 @@ public class BomRevisionView {
   int revision;
 
   BomStatusKind status;
-
-  ProcessId processId;
-
-  String processName;
 
   Auditor determinedBy;
 

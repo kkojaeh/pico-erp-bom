@@ -2,10 +2,6 @@ package pico.erp.bom;
 
 import java.util.LinkedList;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +11,14 @@ import pico.erp.bom.BomExceptions.NotFoundException;
 import pico.erp.bom.BomRequests.DeleteRequest;
 import pico.erp.bom.BomRequests.DetermineRequest;
 import pico.erp.bom.BomRequests.DraftRequest;
-import pico.erp.bom.BomRequests.UpdateRequest;
+import pico.erp.bom.BomRequests.VerifyByItemRequest;
+import pico.erp.bom.BomRequests.VerifyByItemSpecRequest;
+import pico.erp.bom.BomRequests.VerifyByMaterialRequest;
+import pico.erp.bom.BomRequests.VerifyRequest;
 import pico.erp.bom.material.BomMaterialMapper;
 import pico.erp.bom.material.BomMaterialMessages;
 import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.item.ItemId;
-import pico.erp.item.spec.ItemSpecId;
-import pico.erp.process.ProcessId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
@@ -66,29 +63,6 @@ public class BomServiceLogic implements BomService {
     val response = aggregator.apply(mapper.map(request));
     bomRepository.update(aggregator);
     eventPublisher.publishEvents(response.getEvents());
-  }
-
-  public void deleteProcess(DeleteProcessRequest request) {
-    bomRepository.findAllBy(request.getProcessId())
-      .forEach(bom -> {
-        if (!bom.isExpired()) {
-          if (bom.isUpdatable()) {
-            val updateRequest = new BomRequests.UpdateRequest(mapper.map(bom));
-            updateRequest.setProcessId(null);
-            update(updateRequest);
-          } else {
-            val drafted = draft(
-              BomRequests.DraftRequest.builder()
-                .id(BomId.generate())
-                .itemId(bom.getItem().getId())
-                .build()
-            );
-            val updateRequest = new BomRequests.UpdateRequest(drafted);
-            updateRequest.setProcessId(null);
-            update(updateRequest);
-          }
-        }
-      });
   }
 
   @Override
@@ -140,16 +114,6 @@ public class BomServiceLogic implements BomService {
     return new BomHierarchyData(bom, materials);
   }
 
-
-  @Override
-  public void update(UpdateRequest request) {
-    val bom = bomRepository.findBy(request.getId())
-      .orElseThrow(NotFoundException::new);
-    val response = bom.apply(mapper.map(request));
-    bomRepository.update(bom);
-    eventPublisher.publishEvents(response.getEvents());
-  }
-
   @Override
   public BomData draft(DraftRequest request) {
     if (bomRepository.exists(request.getId())) {
@@ -194,6 +158,7 @@ public class BomServiceLogic implements BomService {
     return mapper.map(created);
   }
 
+  @Override
   public void verify(VerifyRequest request) {
     val bom = bomRepository.findBy(request.getId())
       .orElseThrow(NotFoundException::new);
@@ -204,105 +169,37 @@ public class BomServiceLogic implements BomService {
       eventPublisher.publishEvents(response.getEvents());
     }
   }
-
-  public void verify(VerifyByProcessRequest request) {
-    bomRepository.findAllBy(request.getProcessId())
-      .map(bom ->
-        VerifyRequest.builder()
-          .id(bom.getId())
-          .build()
-      )
-      .forEach(this::verify);
-  }
-
+  @Override
   public void verify(VerifyByItemSpecRequest request) {
     bomMaterialRepository.findBy(request.getItemSpecId())
       .map(material ->
-        VerifyRequest.builder()
+        BomRequests.VerifyRequest.builder()
           .id(material.getBom().getId())
           .build()
       )
       .ifPresent(this::verify);
   }
 
+  @Override
   public void verify(VerifyByItemRequest request) {
     bomRepository.findAllBy(request.getItemId())
       .map(bom ->
-        VerifyRequest.builder()
+        BomRequests.VerifyRequest.builder()
           .id(bom.getId())
           .build()
       )
       .forEach(this::verify);
   }
 
+  @Override
   public void verify(VerifyByMaterialRequest request) {
     bomMaterialRepository.findAllIncludeMaterialBomBy(request.getMaterialId())
       .map(bom ->
-        VerifyRequest.builder()
+        BomRequests.VerifyRequest.builder()
           .id(bom.getId())
           .build()
       )
       .forEach(this::verify);
-  }
-
-  @Getter
-  @Builder
-  public static class DeleteProcessRequest {
-
-    @Valid
-    @NotNull
-    ProcessId processId;
-
-  }
-
-  @Getter
-  @Builder
-  public static class VerifyByProcessRequest {
-
-    @Valid
-    @NotNull
-    ProcessId processId;
-
-  }
-
-  @Getter
-  @Builder
-  public static class VerifyByItemSpecRequest {
-
-    @Valid
-    @NotNull
-    ItemSpecId itemSpecId;
-
-  }
-
-  @Getter
-  @Builder
-  public static class VerifyByItemRequest {
-
-    @Valid
-    @NotNull
-    ItemId itemId;
-
-  }
-
-  @Getter
-  @Builder
-  public static class VerifyByMaterialRequest {
-
-    @Valid
-    @NotNull
-    BomId materialId;
-
-  }
-
-  @Getter
-  @Builder
-  public static class VerifyRequest {
-
-    @Valid
-    @NotNull
-    BomId id;
-
   }
 
 }

@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.material.BomMaterialEvents;
 import pico.erp.bom.material.BomMaterialService;
+import pico.erp.bom.process.BomProcessEvents;
 import pico.erp.item.ItemEvents;
 import pico.erp.item.spec.ItemSpecEvents;
 import pico.erp.item.spec.ItemSpecRequests;
 import pico.erp.item.spec.ItemSpecService;
-import pico.erp.process.ProcessEvents;
 
 @SuppressWarnings("unused")
 @Component
@@ -39,7 +39,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.CreatedEvent.CHANNEL)
   public void onBomCreated(BomEvents.CreatedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -49,7 +49,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.DeletedEvent.CHANNEL)
   public void onBomDeleted(BomEvents.DeletedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -79,7 +79,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + EstimatedUnitCostChangedEvent.CHANNEL)
   public void onBomEstimatedUnitCostChanged(EstimatedUnitCostChangedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyByMaterialRequest.builder()
+      BomRequests.VerifyByMaterialRequest.builder()
         .materialId(event.getBomId())
         .build()
     );
@@ -89,7 +89,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.CreatedEvent.CHANNEL)
   public void onBomMaterialCreated(BomMaterialEvents.CreatedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -99,7 +99,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.UpdatedEvent.CHANNEL)
   public void onBomMaterialUpdated(BomMaterialEvents.UpdatedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -109,7 +109,37 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + BomMaterialEvents.DeletedEvent.CHANNEL)
   public void onBomMaterialUpdated(BomMaterialEvents.DeletedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.CreatedEvent.CHANNEL)
+  public void onBomProcessCreated(BomProcessEvents.CreatedEvent event) {
+    bomService.verify(
+      BomRequests.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.UpdatedEvent.CHANNEL)
+  public void onBomProcessUpdated(BomProcessEvents.UpdatedEvent event) {
+    bomService.verify(
+      BomRequests.VerifyRequest.builder()
+        .id(event.getBomId())
+        .build()
+    );
+  }
+
+  @EventListener
+  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.DeletedEvent.CHANNEL)
+  public void onBomProcessUpdated(BomProcessEvents.DeletedEvent event) {
+    bomService.verify(
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -134,7 +164,7 @@ public class BomEventListener {
         }
       });
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -144,7 +174,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.UpdatedEvent.CHANNEL)
   public void onBomUpdated(BomEvents.UpdatedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyRequest.builder()
+      BomRequests.VerifyRequest.builder()
         .id(event.getBomId())
         .build()
     );
@@ -154,7 +184,7 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + ItemSpecEvents.UpdatedEvent.CHANNEL)
   public void onItemSpecUpdated(ItemSpecEvents.UpdatedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyByItemSpecRequest.builder()
+      BomRequests.VerifyByItemSpecRequest.builder()
         .itemSpecId(event.getItemSpecId())
         .build()
     );
@@ -164,30 +194,11 @@ public class BomEventListener {
   @JmsListener(destination = LISTENER_NAME + "." + ItemEvents.UpdatedEvent.CHANNEL)
   public void onItemUpdated(ItemEvents.UpdatedEvent event) {
     bomService.verify(
-      BomServiceLogic.VerifyByItemRequest.builder()
+      BomRequests.VerifyByItemRequest.builder()
         .itemId(event.getItemId())
         .build()
     );
   }
 
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.DeletedEvent.CHANNEL)
-  public void onProcessDeleted(ProcessEvents.DeletedEvent event) {
-    bomService.deleteProcess(
-      BomServiceLogic.DeleteProcessRequest.builder()
-        .processId(event.getProcessId())
-        .build()
-    );
-  }
-
-  @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.EstimatedCostChangedEvent.CHANNEL)
-  public void onProcessEstimatedCostChanged(ProcessEvents.EstimatedCostChangedEvent event) {
-    bomService.verify(
-      BomServiceLogic.VerifyByProcessRequest.builder()
-        .processId(event.getProcessId())
-        .build()
-    );
-  }
 
 }

@@ -10,13 +10,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import pico.erp.item.ItemId;
-import pico.erp.process.ProcessId;
 
 @Repository
 interface BomEntityRepository extends CrudRepository<BomEntity, BomId> {
-
-  @Query("SELECT b FROM Bom b WHERE b.processId = :processId")
-  Stream<BomEntity> findAllBy(@Param("processId") ProcessId processId);
 
   @Query("SELECT b FROM Bom b WHERE b.itemId = :itemId ORDER BY b.revision")
   Stream<BomEntity> findAllBy(@Param("itemId") ItemId itemId);
@@ -68,12 +64,6 @@ public class BomRepositoryJpa implements BomRepository {
   public Optional<BomAggregator> findAggregatorBy(BomId id) {
     return Optional.ofNullable(repository.findOne(id))
       .map(mapper::aggregator);
-  }
-
-  @Override
-  public Stream<Bom> findAllBy(ProcessId id) {
-    return repository.findAllBy(id)
-      .map(mapper::jpa);
   }
 
   @Override

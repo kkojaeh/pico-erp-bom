@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.bom.material.BomMaterialService;
+import pico.erp.bom.process.BomProcessRequests;
+import pico.erp.bom.process.BomProcessService;
 import pico.erp.shared.ApplicationInitializer;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -26,6 +28,10 @@ public class TestDataInitializer implements ApplicationInitializer {
   @Autowired
   private BomMaterialService bomMaterialService;
 
+  @Lazy
+  @Autowired
+  private BomProcessService bomProcessService;
+
 
   @Autowired
   private DataProperties dataProperties;
@@ -33,15 +39,15 @@ public class TestDataInitializer implements ApplicationInitializer {
   @Override
   public void initialize() {
     dataProperties.bomDrafts.forEach(bomService::draft);
-    dataProperties.bomProcesses.forEach(bomService::update);
     dataProperties.bomMaterials.forEach(request -> {
       bomMaterialService.create(request);
       try {
-        TimeUnit.MILLISECONDS.sleep(500L);
+        TimeUnit.MILLISECONDS.sleep(200L);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
     });
+    dataProperties.bomProcesses.forEach(bomProcessService::create);
     dataProperties.bomDetermines.forEach(bomService::determine);
   }
 
@@ -50,9 +56,9 @@ public class TestDataInitializer implements ApplicationInitializer {
   @ConfigurationProperties("data")
   public static class DataProperties {
 
-    List<BomRequests.DraftRequest> bomDrafts = new LinkedList<>();
+    List<BomProcessRequests.CreateRequest> bomProcesses = new LinkedList<>();
 
-    List<BomRequests.UpdateRequest> bomProcesses = new LinkedList<>();
+    List<BomRequests.DraftRequest> bomDrafts = new LinkedList<>();
 
     List<BomMaterialRequests.CreateRequest> bomMaterials = new LinkedList<>();
 

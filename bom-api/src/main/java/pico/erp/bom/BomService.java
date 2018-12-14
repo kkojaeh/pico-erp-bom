@@ -2,19 +2,15 @@ package pico.erp.bom;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import pico.erp.bom.BomRequests.DeleteRequest;
-import pico.erp.bom.BomRequests.DetermineRequest;
-import pico.erp.bom.BomRequests.DraftRequest;
-import pico.erp.bom.BomRequests.UpdateRequest;
 import pico.erp.item.ItemId;
 
 public interface BomService {
 
-  void delete(@Valid DeleteRequest request);
+  void delete(@NotNull @Valid BomRequests.DeleteRequest request);
 
-  void determine(@Valid DetermineRequest request);
+  void determine(@NotNull @Valid BomRequests.DetermineRequest request);
 
-  BomData draft(@Valid DraftRequest request);
+  BomData draft(@NotNull @Valid BomRequests.DraftRequest request);
 
   boolean exists(@NotNull BomId id);
 
@@ -30,6 +26,11 @@ public interface BomService {
 
   BomHierarchyData getHierarchy(@NotNull ItemId id);
 
-  void update(@Valid UpdateRequest request);
+  void verify(@NotNull @Valid BomRequests.VerifyRequest request);
 
+  void verify(@NotNull @Valid BomRequests.VerifyByItemSpecRequest request);
+
+  void verify(@NotNull @Valid BomRequests.VerifyByItemRequest request);
+
+  void verify(@NotNull @Valid BomRequests.VerifyByMaterialRequest request);
 }

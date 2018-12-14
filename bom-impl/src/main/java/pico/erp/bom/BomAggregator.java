@@ -1,5 +1,6 @@
 package pico.erp.bom;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,9 +16,9 @@ import pico.erp.bom.BomEvents.DeterminedEvent;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.BomExceptions.CannotDetermineException;
 import pico.erp.bom.material.BomMaterial;
+import pico.erp.bom.process.BomProcess;
 import pico.erp.bom.unit.cost.BomUnitCost;
 import pico.erp.item.ItemData;
-import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -28,18 +29,20 @@ public class BomAggregator extends Bom {
 
   List<BomMaterial> materials;
 
+  List<BomProcess> processes;
+
   @Builder(builderMethodName = "aggregatorBuilder")
-  public BomAggregator(BomId id, int revision, ItemData item,
-    BomStatusKind status, ProcessData process,
+  public BomAggregator(BomId id, int revision, ItemData item, BomStatusKind status,
     BomUnitCost estimatedIsolatedUnitCost,
     BomUnitCost estimatedAccumulatedUnitCost, Auditor determinedBy,
-    OffsetDateTime determinedDate, Auditor draftedBy, OffsetDateTime draftedDate, boolean stable,
-    List<BomMaterial> materials) {
-    super(id, revision, item, status, process, estimatedIsolatedUnitCost,
-      estimatedAccumulatedUnitCost, determinedBy, determinedDate, draftedBy, draftedDate, stable);
+    OffsetDateTime determinedDate, Auditor draftedBy, OffsetDateTime draftedDate,
+    BigDecimal lossRate, boolean stable,
+    List<BomMaterial> materials, List<BomProcess> processes) {
+    super(id, revision, item, status, estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost,
+      determinedBy, determinedDate, draftedBy, draftedDate, lossRate, stable);
     this.materials = materials;
+    this.processes = processes;
   }
-
 
   public BomMessages.DetermineResponse apply(BomMessages.DetermineRequest request) {
     if (status != BomStatusKind.DRAFT) {
@@ -48,7 +51,8 @@ public class BomAggregator extends Bom {
     boolean unstable = materials.stream()
       .filter(material -> !material.getMaterial().isStable())
       .count() > 0;
-    boolean processPlanned = process != null ? process.isPlanned() : true;
+    boolean processPlanned = processes.stream()
+      .allMatch(process -> process.isPlanned());
 
     if (unstable || !processPlanned) {
       throw new CannotDetermineException();
@@ -70,6 +74,13 @@ public class BomAggregator extends Bom {
     stable =
       materials.stream().filter(material -> !material.getMaterial().isStable()).count() == 0;
     if (this.isUpdatable()) {
+      lossRate = processes.stream()
+        .map(BomProcess::getLossRate)
+        .reduce(BigDecimal.ONE, (acc, curr) -> curr.add(BigDecimal.ONE).multiply(acc))
+        .subtract(BigDecimal.ONE)
+        .setScale(5, BigDecimal.ROUND_HALF_UP);
+
+
       val oldIsolated = estimatedIsolatedUnitCost;
       val oldAccumulated = estimatedAccumulatedUnitCost;
       val newIsolated = new BomUnitCost(this);
@@ -86,5 +97,6 @@ public class BomAggregator extends Bom {
     }
     return new BomMessages.VerifyResponse(events);
   }
+
 
 }

@@ -17,7 +17,6 @@ import pico.erp.bom.BomHierarchyData.BomHierarchyDataBuilder;
 import pico.erp.bom.unit.cost.BomUnitCostData;
 import pico.erp.item.ItemId;
 import pico.erp.item.spec.ItemSpecId;
-import pico.erp.process.ProcessId;
 import pico.erp.shared.data.Auditor;
 
 @Getter
@@ -32,26 +31,25 @@ public class BomHierarchyData extends BomData {
   private List<BomHierarchyData> materials;
 
   public BomHierarchyData(BomData bom, List<BomHierarchyData> materials) {
-    super(bom.getId(), bom.getItemId(), bom.getRevision(), bom.getStatus(), bom.getProcessId(),
-      bom.getDeterminedBy(), bom.getDeterminedDate(), bom.getQuantity(), bom.getLossRate(),
+    super(bom.getId(), bom.getItemId(), bom.getRevision(), bom.getStatus(),
+      bom.getDeterminedBy(), bom.getDeterminedDate(), bom.getQuantity(),
       bom.getEstimatedIsolatedUnitCost(), bom.getEstimatedAccumulatedUnitCost(),
       bom.getItemSpecId(), bom.isSpecifiable(), bom.isMaterial(),
-      bom.isUpdatable(), bom.getOrder(), bom.getParent(), bom.isStable());
+      bom.isUpdatable(), bom.getOrder(), bom.getParent(), bom.isStable(), bom.getLossRate());
     this.materials = materials;
     this.materials.forEach(m -> m.setParent(this));
   }
 
   @Builder
   public BomHierarchyData(BomId id, ItemId itemId, int revision, BomStatusKind status,
-    ProcessId processId, Auditor determinedBy, OffsetDateTime determinedDate,
-    BigDecimal quantity, BigDecimal lossRate,
+    Auditor determinedBy, OffsetDateTime determinedDate, BigDecimal quantity,
     BomUnitCostData estimatedIsolatedUnitCost,
     BomUnitCostData estimatedAccumulatedUnitCost, ItemSpecId itemSpecId, boolean specifiable,
     boolean material, boolean updatable, int order, BomData parent, boolean stable,
-    List<BomHierarchyData> materials) {
-    super(id, itemId, revision, status, processId, determinedBy, determinedDate, quantity, lossRate,
+    BigDecimal lossRate, List<BomHierarchyData> materials) {
+    super(id, itemId, revision, status, determinedBy, determinedDate, quantity,
       estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost, itemSpecId, specifiable, material,
-      updatable, order, parent, stable);
+      updatable, order, parent, stable, lossRate);
     this.materials = materials;
     this.materials.forEach(m -> m.setParent(this));
   }

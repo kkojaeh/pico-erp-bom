@@ -2,6 +2,7 @@ package pico.erp.bom;
 
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -27,7 +28,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pico.erp.bom.unit.cost.BomUnitCostEmbeddable;
 import pico.erp.item.ItemId;
-import pico.erp.process.ProcessId;
 import pico.erp.shared.TypeDefinitions;
 import pico.erp.shared.data.Auditor;
 
@@ -66,14 +66,6 @@ public class BomEntity implements Serializable {
   @Column(length = TypeDefinitions.ENUM_LENGTH)
   @Enumerated(EnumType.STRING)
   BomStatusKind status;
-
-  @AttributeOverrides({
-    @AttributeOverride(name = "value", column = @Column(name = "PROCESS_ID", length = TypeDefinitions.UUID_BINARY_LENGTH))
-  })
-  ProcessId processId;
-
-  @Column(length = TypeDefinitions.NAME_LENGTH)
-  String processName;
 
   @Embedded
   @AttributeOverrides({
@@ -129,5 +121,8 @@ public class BomEntity implements Serializable {
   OffsetDateTime lastModifiedDate;
 
   boolean stable;
+
+  @Column(precision = 7, scale = 5)
+  BigDecimal lossRate;
 
 }
