@@ -96,7 +96,6 @@ class BomServiceSpec extends Specification {
       )
     )
 
-
     bomService.draft(
       new BomRequests.DraftRequest(
         id: bomId1,
@@ -133,6 +132,27 @@ class BomServiceSpec extends Specification {
         id: bomProcessId,
         bomId: bomId1,
         processId: processId,
+        conversionRate: 1
+      )
+    )
+  }
+
+  def addProcessOther() {
+    processService.create(
+      new ProcessRequests.CreateRequest(
+        id: ProcessId.from("process-2"),
+        lossRate: 0.01,
+        typeId: ProcessTypeId.from("PO"),
+        adjustCost: 0,
+        difficulty: ProcessDifficultyKind.NORMAL,
+        description: "좋은 보통 작업"
+      )
+    )
+    bomProcessService.create(
+      new BomProcessRequests.CreateRequest(
+        id: BomProcessId.from("bom-process-o"),
+        bomId: bomId1,
+        processId: ProcessId.from("process-2"),
         conversionRate: 1
       )
     )
@@ -426,6 +446,18 @@ class BomServiceSpec extends Specification {
     then:
     bom.estimatedAccumulatedUnitCost.total == 1000
     bom.estimatedAccumulatedUnitCost.directMaterial == 700
+  }
+
+  def "공정 - 공정의 추가 순서대로 정렬"() {
+    when:
+    addProcess()
+    addProcessOther()
+
+    def processes = bomProcessService.getAll(bomId1)
+
+    then:
+    processes[0].order == 0
+    processes[1].order == 1
   }
 
   def "BOM visit in order"() {

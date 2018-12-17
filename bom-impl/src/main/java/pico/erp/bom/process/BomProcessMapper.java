@@ -13,8 +13,6 @@ import pico.erp.bom.BomData;
 import pico.erp.bom.BomId;
 import pico.erp.bom.BomMapper;
 import pico.erp.bom.material.BomMaterialEntity.BomMaterialKey;
-import pico.erp.bom.material.BomMaterialMessages;
-import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.process.ProcessData;
 import pico.erp.process.ProcessId;
 import pico.erp.process.ProcessService;
@@ -35,8 +33,8 @@ public abstract class BomProcessMapper {
   protected ProcessService processService;
 
   @AfterMapping
-  protected void afterMapping(BomMaterialRequests.CreateRequest request,
-    @MappingTarget BomMaterialMessages.CreateRequest message) {
+  protected void afterMapping(BomProcessRequests.CreateRequest request,
+    @MappingTarget BomProcessMessages.CreateRequest message) {
     message.setOrder(
       (int) bomProcessRepository.countBy(request.getBomId())
     );
