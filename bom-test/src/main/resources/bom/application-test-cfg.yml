@@ -30,10 +30,10 @@ data:
       item-id: material-paper-iv
     - id: material-paper-sc
       item-id: material-paper-sc
-    - id: material-sk-k-e
-      item-id: material-sk-k-e
-    - id: material-pet-04t
-      item-id: material-pet-04t
+    - id: material-cfb-sk.k-e
+      item-id: material-cfb-sk.k-e
+    - id: material-pet-s
+      item-id: material-pet-s
 
   bom-processes:
     - id: bom-2
@@ -120,12 +120,12 @@ data:
       quantity: 0.25
       item-spec-id: material-paper-iv-spec-1
     - bom-id: toothbrush-06
-      material-id: material-pet-04t
+      material-id: material-pet-s
       quantity: 0.4
+      item-spec-id: material-pet-s-spec-1
     - bom-id: toothbrush-07
-      material-id: material-sk-k-e
-      item-spec-id: material-sk-k-e-spec-1
-      quantity: 1
+      material-id: material-cfb-sk.k-e
+      quantity: 0.648
     - bom-id: toothbrush-07
       material-id: material-paper-sc
       item-spec-id: material-paper-sc-spec-1
@@ -139,7 +139,7 @@ data:
     - id: bom-1
     - id: material-paper-sc
     - id: material-paper-iv
-    - id: material-sk-k-e
+    - id: material-cfb-sk.k-e
     - id: toothbrush-07
     - id: toothbrush-06
     - id: toothbrush-05
