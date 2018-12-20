@@ -7,11 +7,11 @@ apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/master/api.gradle'
 
 dependencies {
 
-  compile("com.github.kkojaeh.pico-erp-shared:shared-api:${sharedVersion}")
+  compile("com.github.kkojaeh.pico-erp-shared:api:${sharedVersion}")
 
-  compile("com.github.kkojaeh.pico-erp-item:item-api:${itemVersion}")
+  compile("com.github.kkojaeh.pico-erp-item:api:${itemVersion}")
 
-  compile("com.github.kkojaeh.pico-erp-process:process-api:${processVersion}")
+  compile("com.github.kkojaeh.pico-erp-process:api:${processVersion}")
 
   compileOnly('com.fasterxml.jackson.core:jackson-databind:2.8.10')
 

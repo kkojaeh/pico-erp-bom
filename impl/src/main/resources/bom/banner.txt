@@ -7,4 +7,4 @@
 | |_|   ||       || ||_|| |
 |_______||_______||_|   |_|
 
-made by http://patorjk.com/software/taag/#p=display&f=Modular&t=BOM
+${application.version} - made by http://patorjk.com/software/taag/#p=display&f=Modular&t=BOM
