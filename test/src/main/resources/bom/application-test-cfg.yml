@@ -125,7 +125,8 @@ data:
       item-spec-id: material-pet-s-spec-1
     - bom-id: toothbrush-07
       material-id: material-cfb-sk.k-e
-      quantity: 0.648
+      item-spec-id: material-cfb-sk.k-e-spec-1
+      quantity: 1
     - bom-id: toothbrush-07
       material-id: material-paper-sc
       item-spec-id: material-paper-sc-spec-1
