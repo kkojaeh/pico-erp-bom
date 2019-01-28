@@ -16,9 +16,9 @@ import pico.erp.bom.BomEvents.DeterminedEvent;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.BomExceptions.CannotDetermineException;
 import pico.erp.bom.material.BomMaterial;
-import pico.erp.bom.process.BomProcess;
 import pico.erp.bom.unit.cost.BomUnitCost;
 import pico.erp.item.ItemData;
+import pico.erp.process.ProcessData;
 import pico.erp.shared.data.Auditor;
 import pico.erp.shared.event.Event;
 
@@ -29,7 +29,7 @@ public class BomAggregator extends Bom {
 
   List<BomMaterial> materials;
 
-  List<BomProcess> processes;
+  List<ProcessData> processes;
 
   @Builder(builderMethodName = "aggregatorBuilder")
   public BomAggregator(BomId id, int revision, ItemData item, BomStatusKind status,
@@ -37,7 +37,7 @@ public class BomAggregator extends Bom {
     BomUnitCost estimatedAccumulatedUnitCost, Auditor determinedBy,
     OffsetDateTime determinedDate, Auditor draftedBy, OffsetDateTime draftedDate,
     BigDecimal lossRate, boolean stable,
-    List<BomMaterial> materials, List<BomProcess> processes) {
+    List<BomMaterial> materials, List<ProcessData> processes) {
     super(id, revision, item, status, estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost,
       determinedBy, determinedDate, draftedBy, draftedDate, lossRate, stable);
     this.materials = materials;
@@ -75,7 +75,7 @@ public class BomAggregator extends Bom {
       materials.stream().filter(material -> !material.getMaterial().isStable()).count() == 0;
     if (this.isUpdatable()) {
       lossRate = processes.stream()
-        .map(BomProcess::getLossRate)
+        .map(ProcessData::getLossRate)
         .reduce(BigDecimal.ONE, (acc, curr) -> curr.add(BigDecimal.ONE).multiply(acc))
         .subtract(BigDecimal.ONE)
         .setScale(5, BigDecimal.ROUND_HALF_UP);

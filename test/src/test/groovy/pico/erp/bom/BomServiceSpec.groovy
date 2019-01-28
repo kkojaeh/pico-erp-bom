@@ -10,9 +10,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import pico.erp.bom.material.BomMaterialRequests
 import pico.erp.bom.material.BomMaterialService
-import pico.erp.bom.process.BomProcessId
-import pico.erp.bom.process.BomProcessRequests
-import pico.erp.bom.process.BomProcessService
 import pico.erp.company.CompanyId
 import pico.erp.item.ItemId
 import pico.erp.item.ItemRequests
@@ -52,10 +49,6 @@ class BomServiceSpec extends Specification {
   @Autowired
   ProcessService processService
 
-  @Lazy
-  @Autowired
-  BomProcessService bomProcessService
-
   def itemCategoryId = ItemCategoryId.from("category-1")
 
   def customerId = CompanyId.from("CUST1")
@@ -76,10 +69,6 @@ class BomServiceSpec extends Specification {
 
   def processId = ProcessId.from("process-1")
 
-  def bomProcessId = BomProcessId.from("bom-process-1")
-
-  def bomProcessId2 = BomProcessId.from("bom-process-2")
-
   def setup() {
 
     itemService.create(new ItemRequests.CreateRequest(id: itemId1, name: "테스트", categoryId: itemCategoryId, customerId: customerId, unit: UnitKind.EA, type: ItemTypeKind.MATERIAL, baseUnitCost: 0))
@@ -92,7 +81,9 @@ class BomServiceSpec extends Specification {
         typeId: ProcessTypeId.from("PO"),
         adjustCost: 0,
         difficulty: ProcessDifficultyKind.NORMAL,
-        description: "좋은 보통 작업"
+        description: "좋은 보통 작업",
+        inputRate: 1,
+        itemId: itemId1
       )
     )
 
@@ -122,49 +113,6 @@ class BomServiceSpec extends Specification {
         bomId: bomId1,
         materialId: bomId2,
         quantity: 2
-      )
-    )
-  }
-
-  def addProcess() {
-    bomProcessService.create(
-      new BomProcessRequests.CreateRequest(
-        id: bomProcessId,
-        bomId: bomId1,
-        processId: processId,
-        conversionRate: 1
-      )
-    )
-  }
-
-  def addProcessOther() {
-    processService.create(
-      new ProcessRequests.CreateRequest(
-        id: ProcessId.from("process-2"),
-        lossRate: 0.01,
-        typeId: ProcessTypeId.from("PO"),
-        adjustCost: 0,
-        difficulty: ProcessDifficultyKind.NORMAL,
-        description: "좋은 보통 작업"
-      )
-    )
-    bomProcessService.create(
-      new BomProcessRequests.CreateRequest(
-        id: BomProcessId.from("bom-process-o"),
-        bomId: bomId1,
-        processId: ProcessId.from("process-2"),
-        conversionRate: 1
-      )
-    )
-  }
-
-  def addProcess2() {
-    bomProcessService.create(
-      new BomProcessRequests.CreateRequest(
-        id: bomProcessId2,
-        bomId: bomId2,
-        processId: processId,
-        conversionRate: 1
       )
     )
   }
@@ -199,6 +147,11 @@ class BomServiceSpec extends Specification {
   }
 
   def determine1() {
+    processService.completePlan(
+      new ProcessRequests.CompletePlanRequest(
+        id: processId
+      )
+    )
     bomService.determine(
       new BomRequests.DetermineRequest(id: bomId1)
     )
@@ -426,7 +379,6 @@ class BomServiceSpec extends Specification {
   def "누적단가 - 누적 단가 확인"() {
     when:
     addMaterial()
-    addProcess()
     def bom = bomService.get(bomId1)
 
     then:
@@ -436,29 +388,16 @@ class BomServiceSpec extends Specification {
 
   def "누적단가 - 자재의 가격 변경 영향"() {
     when:
-    addProcess()
-    addProcess2()
     addMaterial()
     updateItem()
 
     def bom = bomService.get(bomId1)
 
     then:
-    bom.estimatedAccumulatedUnitCost.total == 1000
+    bom.estimatedAccumulatedUnitCost.total == 800
     bom.estimatedAccumulatedUnitCost.directMaterial == 700
   }
 
-  def "공정 - 공정의 추가 순서대로 정렬"() {
-    when:
-    addProcess()
-    addProcessOther()
-
-    def processes = bomProcessService.getAll(bomId1)
-
-    then:
-    processes[0].order == 0
-    processes[1].order == 1
-  }
 
   def "BOM visit in order"() {
     when:
@@ -494,7 +433,7 @@ class BomServiceSpec extends Specification {
     def leaf = hierarchy.materials[0].materials[0].materials[0].materials[0]
 
     then:
-    leaf.spareRatio == 0.01
+    leaf.spareRatio == 0.0201
   }
 
 }

@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.bom.material.BomMaterialService;
-import pico.erp.bom.process.BomProcessRequests;
-import pico.erp.bom.process.BomProcessService;
 import pico.erp.shared.ApplicationInitializer;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -27,10 +25,6 @@ public class TestDataInitializer implements ApplicationInitializer {
   @Lazy
   @Autowired
   private BomMaterialService bomMaterialService;
-
-  @Lazy
-  @Autowired
-  private BomProcessService bomProcessService;
 
 
   @Autowired
@@ -47,7 +41,6 @@ public class TestDataInitializer implements ApplicationInitializer {
         throw new RuntimeException(e);
       }
     });
-    dataProperties.bomProcesses.forEach(bomProcessService::create);
     dataProperties.bomDetermines.forEach(bomService::determine);
   }
 
@@ -55,8 +48,6 @@ public class TestDataInitializer implements ApplicationInitializer {
   @Configuration
   @ConfigurationProperties("data")
   public static class DataProperties {
-
-    List<BomProcessRequests.CreateRequest> bomProcesses = new LinkedList<>();
 
     List<BomRequests.DraftRequest> bomDrafts = new LinkedList<>();
 

@@ -10,11 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pico.erp.bom.BomEvents.EstimatedUnitCostChangedEvent;
 import pico.erp.bom.material.BomMaterialEvents;
 import pico.erp.bom.material.BomMaterialService;
-import pico.erp.bom.process.BomProcessEvents;
 import pico.erp.item.ItemEvents;
 import pico.erp.item.spec.ItemSpecEvents;
 import pico.erp.item.spec.ItemSpecRequests;
 import pico.erp.item.spec.ItemSpecService;
+import pico.erp.process.ProcessEvents;
+import pico.erp.process.ProcessService;
 
 @SuppressWarnings("unused")
 @Component
@@ -34,6 +35,10 @@ public class BomEventListener {
   @Lazy
   @Autowired
   private BomServiceLogic bomService;
+
+  @Lazy
+  @Autowired
+  private ProcessService processService;
 
   @EventListener
   @JmsListener(destination = LISTENER_NAME + "." + BomEvents.CreatedEvent.CHANNEL)
@@ -116,33 +121,48 @@ public class BomEventListener {
   }
 
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.CreatedEvent.CHANNEL)
-  public void onBomProcessCreated(BomProcessEvents.CreatedEvent event) {
-    bomService.verify(
-      BomRequests.VerifyRequest.builder()
-        .id(event.getBomId())
-        .build()
-    );
+  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.CreatedEvent.CHANNEL)
+  public void onProcessCreated(ProcessEvents.CreatedEvent event) {
+    val process = processService.get(event.getProcessId());
+    val itemId = process.getItemId();
+    if (bomService.exists(itemId)) {
+      val bom = bomService.get(itemId);
+      bomService.verify(
+        BomRequests.VerifyRequest.builder()
+          .id(bom.getId())
+          .build()
+      );
+    }
   }
 
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.UpdatedEvent.CHANNEL)
-  public void onBomProcessUpdated(BomProcessEvents.UpdatedEvent event) {
-    bomService.verify(
-      BomRequests.VerifyRequest.builder()
-        .id(event.getBomId())
-        .build()
-    );
+  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.UpdatedEvent.CHANNEL)
+  public void onProcessUpdated(ProcessEvents.UpdatedEvent event) {
+    val process = processService.get(event.getProcessId());
+    val itemId = process.getItemId();
+    if (bomService.exists(itemId)) {
+      val bom = bomService.get(itemId);
+      bomService.verify(
+        BomRequests.VerifyRequest.builder()
+          .id(bom.getId())
+          .build()
+      );
+    }
   }
 
   @EventListener
-  @JmsListener(destination = LISTENER_NAME + "." + BomProcessEvents.DeletedEvent.CHANNEL)
-  public void onBomProcessUpdated(BomProcessEvents.DeletedEvent event) {
-    bomService.verify(
-      BomRequests.VerifyRequest.builder()
-        .id(event.getBomId())
-        .build()
-    );
+  @JmsListener(destination = LISTENER_NAME + "." + ProcessEvents.DeletedEvent.CHANNEL)
+  public void onProcessUpdated(ProcessEvents.DeletedEvent event) {
+    val process = processService.get(event.getProcessId());
+    val itemId = process.getItemId();
+    if (bomService.exists(itemId)) {
+      val bom = bomService.get(itemId);
+      bomService.verify(
+        BomRequests.VerifyRequest.builder()
+          .id(bom.getId())
+          .build()
+      );
+    }
   }
 
   /**

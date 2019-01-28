@@ -35,52 +35,6 @@ data:
     - id: material-pet-s
       item-id: material-pet-s
 
-  bom-processes:
-    - id: bom-2
-      bom-id: bom-2
-      process-id: item-2-process-1
-      conversion-rate: 1
-    - id: toothbrush-0
-      bom-id: toothbrush-0
-      process-id: toothbrush-0
-      conversion-rate: 1
-    - id: toothbrush-051
-      bom-id: toothbrush-05
-      process-id: toothbrush-051
-      conversion-rate: 1
-    - id: toothbrush-052
-      bom-id: toothbrush-05
-      process-id: toothbrush-052
-      conversion-rate: 1
-    - id: toothbrush-053
-      bom-id: toothbrush-05
-      process-id: toothbrush-053
-      conversion-rate: 4
-    - id: toothbrush-061
-      bom-id: toothbrush-06
-      process-id: toothbrush-061
-      conversion-rate: 1
-    - id: toothbrush-062
-      bom-id: toothbrush-06
-      process-id: toothbrush-062
-      conversion-rate: 1
-    - id: toothbrush-071
-      bom-id: toothbrush-07
-      process-id: toothbrush-071
-      conversion-rate: 1
-    - id: toothbrush-072
-      bom-id: toothbrush-07
-      process-id: toothbrush-072
-      conversion-rate: 1
-    - id: toothbrush-073
-      bom-id: toothbrush-07
-      process-id: toothbrush-073
-      conversion-rate: 1
-    - id: toothbrush-074
-      bom-id: toothbrush-07
-      process-id: toothbrush-074
-      conversion-rate: 1
-
   bom-materials:
     - bom-id: bom-1
       material-id: bom-2
@@ -133,11 +87,6 @@ data:
       quantity: 1
 
   bom-determines:
-    - id: bom-5
-    - id: bom-4
-    - id: bom-3
-    - id: bom-2
-    - id: bom-1
     - id: material-paper-sc
     - id: material-paper-iv
     - id: material-cfb-sk.k-e

@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import pico.erp.bom.Bom.BomCalculateContext;
 import pico.erp.bom.BomAggregator;
-import pico.erp.bom.process.BomProcess;
+import pico.erp.process.ProcessData;
 
 @Getter
 @ToString
@@ -72,26 +72,20 @@ public class BomUnitCost implements Serializable {
     indirectExpenses = BigDecimal.ZERO;
     val processes = bom.getProcesses();
     val size = processes.size();
-    for (int i = 0; i < size; i++) {
-      val process = processes.get(i);
-      val stackedConversionRate = processes.subList(0, i + 1).stream()
-        .map(BomProcess::getConversionRate)
-        .reduce(BigDecimal.ONE, (acc, curr) -> curr.multiply(acc))
-        .setScale(5, BigDecimal.ROUND_HALF_UP);
-      this.add(process, stackedConversionRate);
+    for (val process : processes) {
+      this.add(process);
     }
     total = directMaterial.add(indirectMaterial)
       .add(directLabor).add(indirectLabor).add(indirectExpenses);
   }
 
-  private void add(BomProcess process, BigDecimal stackedConversionRate) {
+  private void add(ProcessData process) {
     val cost = process.getEstimatedCost();
     indirectMaterial = indirectMaterial
-      .add(cost.getIndirectMaterial().multiply(stackedConversionRate));
-    directLabor = directLabor.add(cost.getDirectLabor().multiply(stackedConversionRate));
-    indirectLabor = indirectLabor.add(cost.getIndirectLabor().multiply(stackedConversionRate));
-    indirectExpenses = indirectExpenses
-      .add(cost.getIndirectExpenses().multiply(stackedConversionRate));
+      .add(cost.getIndirectMaterial());
+    directLabor = directLabor.add(cost.getDirectLabor());
+    indirectLabor = indirectLabor.add(cost.getIndirectLabor());
+    indirectExpenses = indirectExpenses.add(cost.getIndirectExpenses());
   }
 
   public BomUnitCost add(BomUnitCost unitCost, BigDecimal quantity) {

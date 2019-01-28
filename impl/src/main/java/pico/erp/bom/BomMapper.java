@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.AuditorAware;
 import pico.erp.bom.material.BomMaterialRepository;
-import pico.erp.bom.process.BomProcessRepository;
 import pico.erp.item.ItemData;
 import pico.erp.item.ItemId;
 import pico.erp.item.ItemService;
@@ -42,10 +41,6 @@ public abstract class BomMapper {
   @Autowired
   protected BomMaterialRepository bomMaterialRepository;
 
-  @Lazy
-  @Autowired
-  protected BomProcessRepository bomProcessRepository;
-
   protected Bom lastRevision(ItemId itemId) {
     return bomRepository.findWithLastRevision(itemId)
       .orElse(null);
@@ -75,7 +70,7 @@ public abstract class BomMapper {
         bomMaterialRepository.findAllIncludedMaterialBy(entity.getId()).collect(Collectors.toList())
       )
       .processes(
-        bomProcessRepository.findAllBy(entity.getId()).collect(Collectors.toList())
+        processService.getAll(entity.getItemId())
       )
       .build();
   }

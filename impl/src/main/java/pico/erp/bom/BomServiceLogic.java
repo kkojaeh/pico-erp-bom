@@ -20,8 +20,6 @@ import pico.erp.bom.material.BomMaterialMapper;
 import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.bom.material.BomMaterialService;
-import pico.erp.bom.process.BomProcessRequests;
-import pico.erp.bom.process.BomProcessService;
 import pico.erp.item.ItemId;
 import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;
@@ -55,9 +53,6 @@ public class BomServiceLogic implements BomService {
   @Autowired
   private BomMaterialService bomMaterialService;
 
-  @Lazy
-  @Autowired
-  private BomProcessService bomProcessService;
 
   @Override
   public void delete(DeleteRequest request) {
@@ -142,12 +137,6 @@ public class BomServiceLogic implements BomService {
       eventPublisher.publishEvents(events);
       bomMaterialService.nextRevision(
         new BomMaterialRequests.NextRevisionRequest(
-          previous.getId(),
-          created.getId()
-        )
-      );
-      bomProcessService.nextRevision(
-        new BomProcessRequests.NextRevisionRequest(
           previous.getId(),
           created.getId()
         )
