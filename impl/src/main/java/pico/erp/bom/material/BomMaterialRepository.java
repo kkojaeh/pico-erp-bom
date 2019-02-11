@@ -40,7 +40,7 @@ public interface BomMaterialRepository {
 
   Optional<BomMaterial> findBy(@NotNull BomId bomId, @NotNull BomId materialId);
 
-  Optional<BomMaterial> findBy(@NotNull ItemSpecId itemSpecId);
+  Stream<BomMaterial> findAllBy(@NotNull ItemSpecId itemSpecId);
 
   void update(@NotNull BomMaterial material);
 

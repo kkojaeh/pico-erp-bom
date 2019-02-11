@@ -160,13 +160,14 @@ public class BomServiceLogic implements BomService {
   }
   @Override
   public void verify(VerifyByItemSpecRequest request) {
-    bomMaterialRepository.findBy(request.getItemSpecId())
+    bomMaterialRepository.findAllBy(request.getItemSpecId())
+      .filter(material -> !material.getBom().isExpired())
       .map(material ->
         BomRequests.VerifyRequest.builder()
           .id(material.getBom().getId())
           .build()
       )
-      .ifPresent(this::verify);
+      .forEach(this::verify);
   }
 
   @Override

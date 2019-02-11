@@ -30,7 +30,7 @@ interface BomMaterialEntityRepository extends CrudRepository<BomMaterialEntity, 
   Stream<BomMaterialEntity> findAllIncludedMaterialBy(@Param("bomId") BomId bomId);
 
   @Query("SELECT bm FROM BomMaterial bm WHERE bm.itemSpecId = :itemSpecId")
-  BomMaterialEntity findBy(@Param("itemSpecId") ItemSpecId itemSpecId);
+  Stream<BomMaterialEntity> findBy(@Param("itemSpecId") ItemSpecId itemSpecId);
 
 }
 
@@ -110,8 +110,8 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
   }
 
   @Override
-  public Optional<BomMaterial> findBy(ItemSpecId itemSpecId) {
-    return Optional.ofNullable(repository.findBy(itemSpecId))
+  public Stream<BomMaterial> findAllBy(ItemSpecId itemSpecId) {
+    return repository.findBy(itemSpecId)
       .map(mapper::jpa);
   }
 
