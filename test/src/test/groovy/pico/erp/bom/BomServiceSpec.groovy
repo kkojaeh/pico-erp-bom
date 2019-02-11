@@ -82,7 +82,6 @@ class BomServiceSpec extends Specification {
         adjustCost: 0,
         difficulty: ProcessDifficultyKind.NORMAL,
         description: "좋은 보통 작업",
-        inputRate: 1,
         itemId: itemId1
       )
     )
