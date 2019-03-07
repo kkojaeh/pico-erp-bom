@@ -1,7 +1,7 @@
 # Release
 
 ```
-./gradlew release -Prelease.useAutomaticVersion=true
+./gradlew build release -Prelease.useAutomaticVersion=true
 ```
 
 # DDL 생성
