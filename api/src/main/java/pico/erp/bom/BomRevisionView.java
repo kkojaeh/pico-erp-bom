@@ -1,6 +1,6 @@
 package pico.erp.bom;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +21,10 @@ public class BomRevisionView {
 
   Auditor determinedBy;
 
-  OffsetDateTime determinedDate;
+  LocalDateTime determinedDate;
 
   Auditor draftedBy;
 
-  OffsetDateTime draftedDate;
+  LocalDateTime draftedDate;
 
 }

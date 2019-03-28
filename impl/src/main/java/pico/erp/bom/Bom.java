@@ -2,7 +2,7 @@ package pico.erp.bom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -18,7 +18,6 @@ import lombok.ToString;
 import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
-import pico.erp.audit.annotation.Audit;
 import pico.erp.bom.BomEvents.NextRevisionCreatedEvent;
 import pico.erp.bom.BomExceptions.AlreadyDraftStatusException;
 import pico.erp.bom.BomMessages.DraftResponse;
@@ -36,7 +35,6 @@ import pico.erp.shared.event.Event;
 @FieldDefaults(level = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id")
 @ToString
-@Audit(alias = "bom")
 public class Bom implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -74,11 +72,11 @@ public class Bom implements Serializable {
   /**
    * bom 확정 일자
    */
-  OffsetDateTime determinedDate;
+  LocalDateTime determinedDate;
 
   Auditor draftedBy;
 
-  OffsetDateTime draftedDate;
+  LocalDateTime draftedDate;
 
   BigDecimal lossRate;
 
@@ -114,7 +112,7 @@ public class Bom implements Serializable {
     }
     this.revision = 1;
     this.draftedBy = request.getDraftedBy();
-    this.draftedDate = OffsetDateTime.now();
+    this.draftedDate = LocalDateTime.now();
     return new BomMessages.DraftResponse(null,
       Arrays.asList(new BomEvents.CreatedEvent(this.id))
     );
@@ -139,7 +137,7 @@ public class Bom implements Serializable {
     drafted.estimatedIsolatedUnitCost = estimatedIsolatedUnitCost;
     drafted.estimatedAccumulatedUnitCost = estimatedAccumulatedUnitCost;
     drafted.draftedBy = request.getDraftedBy();
-    drafted.draftedDate = OffsetDateTime.now();
+    drafted.draftedDate = LocalDateTime.now();
 
     this.status = BomStatusKind.EXPIRED;
     List<Event> events = new LinkedList<>();

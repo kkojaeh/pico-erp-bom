@@ -2,6 +2,7 @@ package pico.erp.bom;
 
 import java.util.LinkedList;
 import java.util.stream.Collectors;
+import kkojaeh.spring.boot.component.Give;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -21,7 +22,6 @@ import pico.erp.bom.material.BomMaterialRepository;
 import pico.erp.bom.material.BomMaterialRequests;
 import pico.erp.bom.material.BomMaterialService;
 import pico.erp.item.ItemId;
-import pico.erp.shared.Public;
 import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
 
@@ -29,7 +29,7 @@ import pico.erp.shared.event.EventPublisher;
  * determine 하게 되면 draft 중인 품목은 활성화 된다
  */
 @Service
-@Public
+@Give
 @Transactional
 @Validated
 public class BomServiceLogic implements BomService {

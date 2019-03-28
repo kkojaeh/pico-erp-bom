@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import kkojaeh.spring.boot.component.Give;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pico.erp.bom.material.QBomMaterialEntity;
 import pico.erp.item.ItemId;
-import pico.erp.shared.Public;
 import pico.erp.shared.jpa.QueryDslJpaSupport;
 
 @Service
-@Public
+@Give
 @Transactional(readOnly = true)
 @Validated
 public class BomQueryJpa implements BomQuery {

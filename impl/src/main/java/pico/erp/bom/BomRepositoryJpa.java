@@ -20,8 +20,11 @@ interface BomEntityRepository extends CrudRepository<BomEntity, BomId> {
   /*@Query("SELECT b FROM Bom b JOIN b.materials m WHERE m.material = :material")
   Stream<BomEntity> findAllIncludedMaterialBy(@Param("material") BomEntity material);*/
 
+  @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM Bom b WHERE b.itemId = :itemId AND b.revision = :revision")
+  boolean exists(@Param("itemId") ItemId itemId, @Param("revision") Integer revision);
+
   @Query("SELECT b FROM Bom b WHERE b.itemId = :itemId AND b.revision = :revision")
-  BomEntity findBy(@Param("itemId") ItemId itemId, @Param("revision") Integer revision);
+  Optional<BomEntity> findBy(@Param("itemId") ItemId itemId, @Param("revision") Integer revision);
 
   @Query("SELECT MAX(b.revision) FROM Bom b WHERE b.itemId = :itemId")
   Integer findLastRevision(@Param("itemId") ItemId itemId);
@@ -47,22 +50,22 @@ public class BomRepositoryJpa implements BomRepository {
 
   @Override
   public void deleteBy(BomId id) {
-    repository.delete(id);
+    repository.deleteById(id);
   }
 
   @Override
   public boolean exists(BomId id) {
-    return repository.exists(id);
+    return repository.existsById(id);
   }
 
   @Override
   public boolean exists(ItemId id) {
-    return repository.findBy(id, 1) != null;
+    return repository.exists(id, 1);
   }
 
   @Override
   public Optional<BomAggregator> findAggregatorBy(BomId id) {
-    return Optional.ofNullable(repository.findOne(id))
+    return repository.findById(id)
       .map(mapper::aggregator);
   }
 
@@ -74,15 +77,14 @@ public class BomRepositoryJpa implements BomRepository {
 
   @Override
   public Optional<Bom> findBy(BomId id) {
-    return Optional.ofNullable(repository.findOne(id))
+    return repository.findById(id)
       .map(mapper::jpa);
   }
 
   @Override
   public Optional<Bom> findBy(ItemId id, int revision) {
-    return Optional.ofNullable(
-      repository.findBy(id, revision)
-    ).map(mapper::jpa);
+    return repository.findBy(id, revision)
+      .map(mapper::jpa);
   }
 
   @Override
@@ -91,14 +93,13 @@ public class BomRepositoryJpa implements BomRepository {
     if (lastRevision == null || lastRevision < 1) {
       return Optional.ofNullable(null);
     }
-    return Optional.ofNullable(
-      repository.findBy(itemId, lastRevision)
-    ).map(mapper::jpa);
+    return repository.findBy(itemId, lastRevision)
+      .map(mapper::jpa);
   }
 
   @Override
   public void update(Bom bom) {
-    val entity = repository.findOne(bom.getId());
+    val entity = repository.findById(bom.getId()).get();
     mapper.pass(mapper.jpa(bom), entity);
     repository.save(entity);
   }

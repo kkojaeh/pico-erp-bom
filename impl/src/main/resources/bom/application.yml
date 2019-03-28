@@ -1,22 +1,25 @@
-banner:
-  location: classpath:bom/banner.txt
-
 spring:
+  jmx:
+    default-domain: bom
+  banner:
+    location: classpath:bom/banner.txt
   application:
     name: pico-bom
   session:
     store-type: NONE
   messages:
-    cache-seconds: 60
     basename: bom-messages
     encoding: UTF-8
   datasource:
+    name: bom-datasource
     url: ${BOM_DATASOURCE_URL:${DATASOURCE_URL:jdbc:p6spy:hsqldb:mem:bom}}
     driver-class-name: ${BOM_DATASOURCE_DRIVER_CLASS_NAME:${DATASOURCE_DRIVER_CLASS_NAME:com.p6spy.engine.spy.P6SpyDriver}}
     username: ${BOM_DATASOURCE_USERNAME:${DATASOURCE_USERNAME:as}}
     password: ${BOM_DATASOURCE_PASSWORD:${DATASOURCE_PASSWORD:null}}
     hikari:
       maximum-pool-size: 4
+  flyway:
+    enabled: false
   jpa:
     database: HSQL
     hibernate:
@@ -82,6 +85,3 @@ logging:
   level:
     org:
       springframework: INFO
-
-flyway:
-  enabled: false

@@ -1,20 +1,25 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: "net.ltgt.apt"
-apply plugin: 'net.ltgt.apt-idea'
+plugins {
+  id 'java'
+  id 'groovy'
+  id 'net.ltgt.apt'
+  id "net.ltgt.apt-idea"
+  id 'org.springframework.boot'
+  id 'io.spring.dependency-management'
+  id 'project-report'
+}
 
-apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/master/test.gradle'
+apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/spring-boot-2/test.gradle'
 
 dependencies {
 
   compile project(':impl')
 
-  testRuntimeOnly("com.github.kkojaeh.pico-erp-audit:test:${auditVersion}")
+  compile("com.github.kkojaeh.pico-erp-shared:test:${sharedVersion}")
 
-  testRuntimeOnly("com.github.kkojaeh.pico-erp-item:test:${itemVersion}")
+  testCompile("com.github.kkojaeh.pico-erp-item:test:${itemVersion}")
 
-  testRuntimeOnly("com.github.kkojaeh.pico-erp-process:test:${processVersion}")
+  testCompile("com.github.kkojaeh.pico-erp-process:test:${processVersion}")
 
-  testRuntimeOnly("com.github.kkojaeh.pico-erp-company:test:${companyVersion}")
+  testCompile("com.github.kkojaeh.pico-erp-company:test:${companyVersion}")
 
 }
