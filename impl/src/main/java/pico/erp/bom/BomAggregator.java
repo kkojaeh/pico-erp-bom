@@ -1,7 +1,7 @@
 package pico.erp.bom;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -35,7 +35,7 @@ public class BomAggregator extends Bom {
   public BomAggregator(BomId id, int revision, ItemData item, BomStatusKind status,
     BomUnitCost estimatedIsolatedUnitCost,
     BomUnitCost estimatedAccumulatedUnitCost, Auditor determinedBy,
-    OffsetDateTime determinedDate, Auditor draftedBy, OffsetDateTime draftedDate,
+    LocalDateTime determinedDate, Auditor draftedBy, LocalDateTime draftedDate,
     BigDecimal lossRate, boolean stable,
     List<BomMaterial> materials, List<ProcessData> processes) {
     super(id, revision, item, status, estimatedIsolatedUnitCost, estimatedAccumulatedUnitCost,
@@ -60,7 +60,7 @@ public class BomAggregator extends Bom {
     stable = true;
     status = BomStatusKind.DETERMINED;
     determinedBy = request.getDeterminedBy();
-    determinedDate = OffsetDateTime.now();
+    determinedDate = LocalDateTime.now();
     return new BomMessages.DetermineResponse(
       Arrays.asList(new DeterminedEvent(this.id))
     );

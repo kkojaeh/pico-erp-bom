@@ -56,22 +56,22 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
 
   @Override
   public void deleteBy(BomId bomId, BomId materialId) {
-    repository.delete(BomMaterialKey.from(bomId, materialId));
+    repository.deleteById(BomMaterialKey.from(bomId, materialId));
   }
 
   @Override
   public void deleteBy(BomMaterial material) {
-    repository.delete(BomMaterialKey.from(material));
+    repository.deleteById(BomMaterialKey.from(material));
   }
 
   @Override
   public boolean exists(BomId bomId, BomId materialId) {
-    return repository.exists(BomMaterialKey.from(bomId, materialId));
+    return repository.existsById(BomMaterialKey.from(bomId, materialId));
   }
 
   @Override
   public boolean exists(BomMaterial material) {
-    return repository.exists(BomMaterialKey.from(material));
+    return repository.existsById(BomMaterialKey.from(material));
   }
 
   @Override
@@ -105,7 +105,7 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
 
   @Override
   public Optional<BomMaterial> findBy(BomId bomId, BomId materialId) {
-    return Optional.ofNullable(repository.findOne(BomMaterialKey.from(bomId, materialId)))
+    return repository.findById(BomMaterialKey.from(bomId, materialId))
       .map(mapper::jpa);
   }
 
@@ -117,7 +117,7 @@ public class BomMaterialRepositoryJpa implements BomMaterialRepository {
 
   @Override
   public void update(BomMaterial material) {
-    val entity = repository.findOne(BomMaterialKey.from(material));
+    val entity = repository.findById(BomMaterialKey.from(material)).get();
     mapper.pass(mapper.jpa(material), entity);
     repository.save(entity);
   }

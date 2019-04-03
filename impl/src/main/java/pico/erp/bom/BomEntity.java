@@ -3,7 +3,7 @@ package pico.erp.bom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -97,7 +97,7 @@ public class BomEntity implements Serializable {
   Auditor determinedBy;
 
   @Column
-  OffsetDateTime determinedDate;
+  LocalDateTime determinedDate;
 
   @Embedded
   @AttributeOverrides({
@@ -107,7 +107,7 @@ public class BomEntity implements Serializable {
   Auditor draftedBy;
 
   @Column
-  OffsetDateTime draftedDate;
+  LocalDateTime draftedDate;
 
   @Embedded
   @AttributeOverrides({
@@ -118,7 +118,7 @@ public class BomEntity implements Serializable {
   Auditor lastModifiedBy;
 
   @LastModifiedDate
-  OffsetDateTime lastModifiedDate;
+  LocalDateTime lastModifiedDate;
 
   boolean stable;
 

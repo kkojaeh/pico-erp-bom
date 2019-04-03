@@ -1,10 +1,15 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'net.ltgt.apt'
-apply plugin: 'net.ltgt.apt-idea'
-apply plugin: 'io.github.divinespear.jpa-schema-generate'
+plugins {
+  id 'java'
+  id 'groovy'
+  id "net.ltgt.apt"
+  id "net.ltgt.apt-idea"
+  id 'org.springframework.boot'
+  id 'io.spring.dependency-management'
+  id 'io.github.divinespear.jpa-schema-generate'
+  id 'project-report'
+}
 
-apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/master/impl.gradle'
+apply from: 'https://github.com/kkojaeh/pico-erp-gradle/raw/spring-boot-2/impl.gradle'
 
 dependencies {
 

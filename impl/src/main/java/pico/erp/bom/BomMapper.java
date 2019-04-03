@@ -3,6 +3,7 @@ package pico.erp.bom;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import kkojaeh.spring.boot.component.ComponentAutowired;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -22,16 +23,14 @@ import pico.erp.shared.data.Auditor;
 @Mapper(imports = BigDecimal.class)
 public abstract class BomMapper {
 
-  @Lazy
-  @Autowired
+  @ComponentAutowired
   protected ItemService itemService;
 
   @Lazy
   @Autowired
   protected BomRepository bomRepository;
 
-  @Lazy
-  @Autowired
+  @ComponentAutowired
   protected ProcessService processService;
 
   @Autowired
@@ -113,7 +112,7 @@ public abstract class BomMapper {
   }
 
   @Mappings({
-    @Mapping(target = "determinedBy", expression = "java(auditorAware.getCurrentAuditor())")
+    @Mapping(target = "determinedBy", expression = "java(auditorAware.getCurrentAuditor().get())")
   })
   public abstract BomMessages.DetermineRequest map(BomRequests.DetermineRequest request);
 
@@ -122,7 +121,7 @@ public abstract class BomMapper {
   @Mappings({
     @Mapping(target = "item", source = "itemId"),
     @Mapping(target = "lastRevision", source = "itemId"),
-    @Mapping(target = "draftedBy", expression = "java(auditorAware.getCurrentAuditor())")
+    @Mapping(target = "draftedBy", expression = "java(auditorAware.getCurrentAuditor().get())")
   })
   public abstract BomMessages.DraftRequest map(BomRequests.DraftRequest request);
 

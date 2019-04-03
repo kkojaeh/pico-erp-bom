@@ -1,10 +1,9 @@
 package pico.erp.bom
 
+import kkojaeh.spring.boot.component.ComponentAutowired
+import kkojaeh.spring.boot.component.SpringBootTestComponent
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Lazy
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
@@ -21,32 +20,28 @@ import pico.erp.process.ProcessRequests
 import pico.erp.process.ProcessService
 import pico.erp.process.difficulty.ProcessDifficultyKind
 import pico.erp.process.type.ProcessTypeId
-import pico.erp.shared.IntegrationConfiguration
+import pico.erp.shared.ComponentDefinitionServiceLoaderTestComponentSiblingsSupplier
+import pico.erp.shared.TestParentApplication
 import pico.erp.shared.data.UnitKind
 import spock.lang.Specification
 
-@SpringBootTest(classes = [IntegrationConfiguration])
+@SpringBootTest(classes = [BomApplication, TestConfig])
+@SpringBootTestComponent(parent = TestParentApplication, siblingsSupplier = ComponentDefinitionServiceLoaderTestComponentSiblingsSupplier.class)
 @Transactional
 @Rollback
 @ActiveProfiles("test")
-@Configuration
-@ComponentScan("pico.erp.config")
 class BomServiceSpec extends Specification {
 
-  @Lazy
   @Autowired
   BomService bomService
 
-  @Lazy
   @Autowired
   BomMaterialService bomMaterialService
 
-  @Lazy
-  @Autowired
+  @ComponentAutowired
   ItemService itemService
 
-  @Lazy
-  @Autowired
+  @ComponentAutowired
   ProcessService processService
 
   def itemCategoryId = ItemCategoryId.from("category-1")

@@ -3,7 +3,7 @@ package pico.erp.bom;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Stack;
 import lombok.AccessLevel;
@@ -42,7 +42,7 @@ public class BomHierarchyData extends BomData {
 
   @Builder
   public BomHierarchyData(BomId id, ItemId itemId, int revision, BomStatusKind status,
-    Auditor determinedBy, OffsetDateTime determinedDate, BigDecimal quantity,
+    Auditor determinedBy, LocalDateTime determinedDate, BigDecimal quantity,
     BomUnitCostData estimatedIsolatedUnitCost,
     BomUnitCostData estimatedAccumulatedUnitCost, ItemSpecId itemSpecId, boolean specifiable,
     boolean material, boolean updatable, int order, BomData parent, boolean stable,
