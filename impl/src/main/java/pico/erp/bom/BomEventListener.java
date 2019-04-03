@@ -1,9 +1,8 @@
 package pico.erp.bom;
 
-import kkojaeh.spring.boot.component.Take;
+import kkojaeh.spring.boot.component.ComponentAutowired;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
@@ -25,18 +24,16 @@ public class BomEventListener {
 
   private static final String LISTENER_NAME = "listener.bom-event-listener";
 
-  @Take
+  @ComponentAutowired
   private ItemSpecService itemSpecService;
 
-  @Lazy
   @Autowired
   private BomMaterialService bomMaterialService;
 
-  @Lazy
   @Autowired
   private BomServiceLogic bomService;
 
-  @Take
+  @ComponentAutowired
   private ProcessService processService;
 
   @EventListener

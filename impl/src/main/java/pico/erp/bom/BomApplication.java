@@ -1,6 +1,6 @@
 package pico.erp.bom;
 
-import kkojaeh.spring.boot.component.Give;
+import kkojaeh.spring.boot.component.ComponentBean;
 import kkojaeh.spring.boot.component.SpringBootComponent;
 import kkojaeh.spring.boot.component.SpringBootComponentBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import pico.erp.ComponentDefinition;
 import pico.erp.bom.BomApi.Roles;
 import pico.erp.shared.SharedConfiguration;
 import pico.erp.shared.data.Role;
@@ -27,7 +28,7 @@ import pico.erp.shared.data.Role;
 @Import(value = {
   SharedConfiguration.class
 })
-public class BomApplication {
+public class BomApplication implements ComponentDefinition {
 
   public static void main(String[] args) {
     new SpringBootComponentBuilder()
@@ -36,15 +37,19 @@ public class BomApplication {
   }
 
   @Bean
-  @Give
+  @ComponentBean(host = false)
   public Role bomAccessorRole() {
     return Roles.BOM_ACCESSOR;
   }
 
   @Bean
-  @Give
+  @ComponentBean(host = false)
   public Role bomManagerRole() {
     return Roles.BOM_MANAGER;
   }
 
+  @Override
+  public Class<?> getComponentClass() {
+    return BomApplication.class;
+  }
 }

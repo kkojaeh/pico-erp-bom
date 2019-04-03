@@ -1,7 +1,7 @@
 package pico.erp.bom.material;
 
 import java.util.Optional;
-import kkojaeh.spring.boot.component.Take;
+import kkojaeh.spring.boot.component.ComponentAutowired;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,7 +29,7 @@ public abstract class BomMaterialMapper {
   @Autowired
   protected BomMaterialRepository bomMaterialRepository;
 
-  @Take
+  @ComponentAutowired
   protected ItemSpecService itemSpecService;
 
   @AfterMapping

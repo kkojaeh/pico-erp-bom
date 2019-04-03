@@ -3,7 +3,7 @@ package pico.erp.bom.material;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import kkojaeh.spring.boot.component.Give;
+import kkojaeh.spring.boot.component.ComponentBean;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import pico.erp.shared.event.Event;
 import pico.erp.shared.event.EventPublisher;
 
 @Service
-@Give
+@ComponentBean
 @Transactional
 @Validated
 public class BomMaterialServiceLogic implements BomMaterialService {

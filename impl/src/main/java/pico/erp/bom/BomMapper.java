@@ -3,7 +3,7 @@ package pico.erp.bom;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import kkojaeh.spring.boot.component.Take;
+import kkojaeh.spring.boot.component.ComponentAutowired;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -23,14 +23,14 @@ import pico.erp.shared.data.Auditor;
 @Mapper(imports = BigDecimal.class)
 public abstract class BomMapper {
 
-  @Take
+  @ComponentAutowired
   protected ItemService itemService;
 
   @Lazy
   @Autowired
   protected BomRepository bomRepository;
 
-  @Take
+  @ComponentAutowired
   protected ProcessService processService;
 
   @Autowired

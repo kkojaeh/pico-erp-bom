@@ -1,7 +1,7 @@
 package pico.erp.bom
 
+import kkojaeh.spring.boot.component.ComponentAutowired
 import kkojaeh.spring.boot.component.SpringBootTestComponent
-import kkojaeh.spring.boot.component.Take
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.Rollback
@@ -9,22 +9,24 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import pico.erp.bom.material.BomMaterialRequests
 import pico.erp.bom.material.BomMaterialService
-import pico.erp.company.CompanyApplication
 import pico.erp.company.CompanyId
-import pico.erp.item.*
+import pico.erp.item.ItemId
+import pico.erp.item.ItemRequests
+import pico.erp.item.ItemService
+import pico.erp.item.ItemTypeKind
 import pico.erp.item.category.ItemCategoryId
-import pico.erp.process.ProcessApplication
 import pico.erp.process.ProcessId
 import pico.erp.process.ProcessRequests
 import pico.erp.process.ProcessService
 import pico.erp.process.difficulty.ProcessDifficultyKind
 import pico.erp.process.type.ProcessTypeId
+import pico.erp.shared.ComponentDefinitionServiceLoaderTestComponentSiblingsSupplier
 import pico.erp.shared.TestParentApplication
 import pico.erp.shared.data.UnitKind
 import spock.lang.Specification
 
 @SpringBootTest(classes = [BomApplication, TestConfig])
-@SpringBootTestComponent(parent = TestParentApplication, siblings = [ItemApplication, ProcessApplication, CompanyApplication])
+@SpringBootTestComponent(parent = TestParentApplication, siblingsSupplier = ComponentDefinitionServiceLoaderTestComponentSiblingsSupplier.class)
 @Transactional
 @Rollback
 @ActiveProfiles("test")
@@ -36,10 +38,10 @@ class BomServiceSpec extends Specification {
   @Autowired
   BomMaterialService bomMaterialService
 
-  @Take
+  @ComponentAutowired
   ItemService itemService
 
-  @Take
+  @ComponentAutowired
   ProcessService processService
 
   def itemCategoryId = ItemCategoryId.from("category-1")
