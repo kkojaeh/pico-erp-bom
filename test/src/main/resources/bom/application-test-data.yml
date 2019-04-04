@@ -87,6 +87,7 @@ data:
       quantity: 1
 
   bom-determines:
+  - id: material-pet-s
     - id: material-paper-sc
     - id: material-paper-iv
     - id: material-cfb-sk.k-e
