@@ -1,101 +1,101 @@
 data:
   bom-drafts:
-    - id: bom-1
-      item-id: item-1
-    - id: bom-2
-      item-id: item-2
-    - id: bom-3
-      item-id: item-3
-    - id: bom-4
-      item-id: item-4
-    - id: bom-5
-      item-id: item-5
-    - id: toothbrush-0
-      item-id: toothbrush-0
-    - id: toothbrush-01
-      item-id: toothbrush-01
-    - id: toothbrush-02
-      item-id: toothbrush-02
-    - id: toothbrush-03
-      item-id: toothbrush-03
-    - id: toothbrush-04
-      item-id: toothbrush-04
-    - id: toothbrush-05
-      item-id: toothbrush-05
-    - id: toothbrush-06
-      item-id: toothbrush-06
-    - id: toothbrush-07
-      item-id: toothbrush-07
-    - id: material-paper-iv
-      item-id: material-paper-iv
-    - id: material-paper-sc
-      item-id: material-paper-sc
-    - id: material-cfb-sk.k-e
-      item-id: material-cfb-sk.k-e
-    - id: material-pet-s
-      item-id: material-pet-s
+  - id: bom-1
+    item-id: item-1
+  - id: bom-2
+    item-id: item-2
+  - id: bom-3
+    item-id: item-3
+  - id: bom-4
+    item-id: item-4
+  - id: bom-5
+    item-id: item-5
+  - id: toothbrush-0
+    item-id: toothbrush-0
+  - id: toothbrush-01
+    item-id: toothbrush-01
+  - id: toothbrush-02
+    item-id: toothbrush-02
+  - id: toothbrush-03
+    item-id: toothbrush-03
+  - id: toothbrush-04
+    item-id: toothbrush-04
+  - id: toothbrush-05
+    item-id: toothbrush-05
+  - id: toothbrush-06
+    item-id: toothbrush-06
+  - id: toothbrush-07
+    item-id: toothbrush-07
+  - id: material-paper-iv
+    item-id: material-paper-iv
+  - id: material-paper-sc
+    item-id: material-paper-sc
+  - id: material-cfb-sk.k-e
+    item-id: material-cfb-sk.k-e
+  - id: material-pet-s
+    item-id: material-pet-s
 
   bom-materials:
-    - bom-id: bom-1
-      material-id: bom-2
-      quantity: 1
-    - bom-id: bom-2
-      material-id: bom-3
-      quantity: 1
-    - bom-id: bom-3
-      material-id: bom-4
-      quantity: 1
-    - bom-id: bom-4
-      material-id: bom-5
-      quantity: 1
-    - bom-id: toothbrush-0
-      material-id: toothbrush-01
-      quantity: 2
-    - bom-id: toothbrush-0
-      material-id: toothbrush-02
-      quantity: 2
-    - bom-id: toothbrush-0
-      material-id: toothbrush-03
-      quantity: 2
-    - bom-id: toothbrush-0
-      material-id: toothbrush-04
-      quantity: 2
-    - bom-id: toothbrush-0
-      material-id: toothbrush-05
-      quantity: 1
-    - bom-id: toothbrush-0
-      material-id: toothbrush-06
-      quantity: 1
-    - bom-id: toothbrush-0
-      material-id: toothbrush-07
-      quantity: 0.1
-    - bom-id: toothbrush-05
-      material-id: material-paper-iv
-      quantity: 0.25
-      item-spec-id: material-paper-iv-spec-1
-    - bom-id: toothbrush-06
-      material-id: material-pet-s
-      quantity: 0.4
-      item-spec-id: material-pet-s-spec-1
-    - bom-id: toothbrush-07
-      material-id: material-cfb-sk.k-e
-      item-spec-id: material-cfb-sk.k-e-spec-1
-      quantity: 1
-    - bom-id: toothbrush-07
-      material-id: material-paper-sc
-      item-spec-id: material-paper-sc-spec-1
-      quantity: 1
+  - bom-id: bom-1
+    material-id: bom-2
+    quantity: 1
+  - bom-id: bom-2
+    material-id: bom-3
+    quantity: 1
+  - bom-id: bom-3
+    material-id: bom-4
+    quantity: 1
+  - bom-id: bom-4
+    material-id: bom-5
+    quantity: 1
+  - bom-id: toothbrush-0
+    material-id: toothbrush-01
+    quantity: 2
+  - bom-id: toothbrush-0
+    material-id: toothbrush-02
+    quantity: 2
+  - bom-id: toothbrush-0
+    material-id: toothbrush-03
+    quantity: 2
+  - bom-id: toothbrush-0
+    material-id: toothbrush-04
+    quantity: 2
+  - bom-id: toothbrush-0
+    material-id: toothbrush-05
+    quantity: 1
+  - bom-id: toothbrush-0
+    material-id: toothbrush-06
+    quantity: 1
+  - bom-id: toothbrush-0
+    material-id: toothbrush-07
+    quantity: 0.1
+  - bom-id: toothbrush-05
+    material-id: material-paper-iv
+    quantity: 0.25
+    item-spec-id: material-paper-iv-spec-1
+  - bom-id: toothbrush-06
+    material-id: material-pet-s
+    quantity: 0.4
+    item-spec-id: material-pet-s-spec-1
+  - bom-id: toothbrush-07
+    material-id: material-cfb-sk.k-e
+    item-spec-id: material-cfb-sk.k-e-spec-1
+    quantity: 1
+  - bom-id: toothbrush-07
+    material-id: material-paper-sc
+    item-spec-id: material-paper-sc-spec-1
+    quantity: 1
 
   bom-determines:
   - id: material-pet-s
-    - id: material-paper-sc
-    - id: material-paper-iv
-    - id: material-cfb-sk.k-e
-    - id: toothbrush-07
-    - id: toothbrush-06
-    - id: toothbrush-05
-    - id: toothbrush-04
-    - id: toothbrush-03
-    - id: toothbrush-02
-    - id: toothbrush-01
-    - id: toothbrush-0
+  - id: material-paper-sc
+  - id: material-paper-iv
+  - id: material-cfb-sk.k-e
+  - id: toothbrush-07
+  - id: toothbrush-06
+  - id: toothbrush-05
+  - id: toothbrush-04
+  - id: toothbrush-03
+  - id: toothbrush-02
+  - id: toothbrush-01
+  - id: toothbrush-0
