@@ -2,7 +2,7 @@ package pico.erp.bom;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,7 +34,7 @@ public class BomData {
 
   Auditor determinedBy;
 
-  LocalDateTime determinedDate;
+  OffsetDateTime determinedDate;
 
   BigDecimal quantity;
 

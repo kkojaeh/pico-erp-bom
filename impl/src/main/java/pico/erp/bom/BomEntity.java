@@ -3,7 +3,7 @@ package pico.erp.bom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -14,6 +14,8 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,7 +26,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pico.erp.bom.unit.cost.BomUnitCostEmbeddable;
 import pico.erp.item.ItemId;
@@ -97,7 +98,7 @@ public class BomEntity implements Serializable {
   Auditor determinedBy;
 
   @Column
-  LocalDateTime determinedDate;
+  OffsetDateTime determinedDate;
 
   @Embedded
   @AttributeOverrides({
@@ -107,7 +108,7 @@ public class BomEntity implements Serializable {
   Auditor draftedBy;
 
   @Column
-  LocalDateTime draftedDate;
+  OffsetDateTime draftedDate;
 
   @Embedded
   @AttributeOverrides({
@@ -117,12 +118,21 @@ public class BomEntity implements Serializable {
   @LastModifiedBy
   Auditor lastModifiedBy;
 
-  @LastModifiedDate
-  LocalDateTime lastModifiedDate;
+  OffsetDateTime lastModifiedDate;
 
   boolean stable;
 
   @Column(precision = 7, scale = 5)
   BigDecimal lossRate;
+
+  @PrePersist
+  private void onCreate() {
+    lastModifiedDate = OffsetDateTime.now();
+  }
+
+  @PreUpdate
+  private void onUpdate() {
+    lastModifiedDate = OffsetDateTime.now();
+  }
 
 }

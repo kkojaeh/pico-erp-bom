@@ -2,7 +2,7 @@ package pico.erp.bom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -72,11 +72,11 @@ public class Bom implements Serializable {
   /**
    * bom 확정 일자
    */
-  LocalDateTime determinedDate;
+  OffsetDateTime determinedDate;
 
   Auditor draftedBy;
 
-  LocalDateTime draftedDate;
+  OffsetDateTime draftedDate;
 
   BigDecimal lossRate;
 
@@ -112,7 +112,7 @@ public class Bom implements Serializable {
     }
     this.revision = 1;
     this.draftedBy = request.getDraftedBy();
-    this.draftedDate = LocalDateTime.now();
+    this.draftedDate = OffsetDateTime.now();
     return new BomMessages.DraftResponse(null,
       Arrays.asList(new BomEvents.CreatedEvent(this.id))
     );
@@ -137,7 +137,7 @@ public class Bom implements Serializable {
     drafted.estimatedIsolatedUnitCost = estimatedIsolatedUnitCost;
     drafted.estimatedAccumulatedUnitCost = estimatedAccumulatedUnitCost;
     drafted.draftedBy = request.getDraftedBy();
-    drafted.draftedDate = LocalDateTime.now();
+    drafted.draftedDate = OffsetDateTime.now();
 
     this.status = BomStatusKind.EXPIRED;
     List<Event> events = new LinkedList<>();
